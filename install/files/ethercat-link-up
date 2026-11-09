@@ -1,0 +1,20 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+# Copyright (c) 2026 Ocean Octane S.L.U.
+# ExecStartPre of ethercat.service (installed by the OdyCAT installer): sets
+# the bus card (by MAC address) up and waits up to 10 s for its link. The
+# generic driver needs the card up, and the master reads every slave's
+# identity as soon as it starts, so it should find the link already there.
+mac=$(printf '%s' "$1" | tr 'A-F' 'a-f')
+for dev in /sys/class/net/*; do
+    [ "$(cat "$dev/address" 2>/dev/null)" = "$mac" ] && iface=${dev##*/} && break
+done
+[ -n "${iface:-}" ] || { echo "ethercat-link-up: no network card with MAC $mac" >&2; exit 0; }
+ip link set "$iface" up
+i=0
+while [ "$i" -lt 100 ]; do
+    [ "$(cat "/sys/class/net/$iface/carrier" 2>/dev/null)" = 1 ] && exit 0
+    sleep 0.1; i=$((i + 1))
+done
+echo "ethercat-link-up: $iface has no link (cable, or no slave powered)" >&2
+exit 0

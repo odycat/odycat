@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+# Copyright (c) 2026 Ocean Octane S.L.U.
+# Read the Docs: builds docs/ for every branch and tag it is told to, and
+# publishes each release's documentation under its version (docs.odycat.org).
+version: 2
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.13"
+
+sphinx:
+  configuration: docs/conf.py
+  fail_on_warning: true
+
+# Downloadable copies of each version's documentation. PDF to be added once
+# a build on Read the Docs shows the LaTeX output is clean (SVG images).
+formats:
+  - epub
+
+python:
+  install:
+    - requirements: docs/requirements.txt

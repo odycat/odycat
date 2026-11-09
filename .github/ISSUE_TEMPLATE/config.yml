@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+# Copyright (c) 2026 Ocean Octane S.L.U.
+# Issues only through the forms (bug report, feature request). GitHub adds
+# the security policy (SECURITY.md) to the chooser by itself.
+blank_issues_enabled: false
+contact_links:
+  - name: Professional device development or testing
+    url: https://www.yoctovision.com
+    about: For commissioned device development or bench testing, write to devices@odycat.org. For community classes, see CONTRIBUTING.md.
+  - name: Commercial licence, support or training
+    url: https://www.yoctovision.com
+    about: Yoctovision grants the commercial licences and provides support and training. Write to licensing@odycat.org.

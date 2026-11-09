@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 1056.7402 310"
+   version="1.1"
+   id="svg13"
+   sodipodi:docname="odycat_letters_dark.svg"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   width="1056.7402"
+   height="310"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs13" />
+  <sodipodi:namedview
+     id="namedview13"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.36375496"
+     inkscape:cx="960.81164"
+     inkscape:cy="1175.2417"
+     inkscape:window-width="2560"
+     inkscape:window-height="1363"
+     inkscape:window-x="2560"
+     inkscape:window-y="1080"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg13" />
+  <g
+     id="g15-1"
+     transform="translate(1338.4422,465.62873)" />
+  <g
+     id="g22"
+     transform="translate(-138.01759,-651.20974)">
+    <g
+       id="g15"
+       transform="translate(138.01759,651.20974)">
+      <path
+         style="fill:#e5e5e5;fill-opacity:1;stroke:#e5e5e5;stroke-width:19.78;stroke-dasharray:none;stroke-opacity:1"
+         d="m 588.04084,218.05577 -406.82378,0.0988"
+         id="path13"
+         sodipodi:nodetypes="cc" />
+      <rect
+         width="1056.7402"
+         height="310"
+         fill="#1a1a1a"
+         id="rect1"
+         x="0"
+         y="0" />
+      <text
+         x="309.41977"
+         y="192.45288"
+         font-family="Audiowide, sans-serif"
+         font-size="155px"
+         fill="#e5e5e5"
+         id="text13"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Audiowide;-inkscape-font-specification:Audiowide"
+           id="tspan13">OdyCAT</tspan></text>
+      <g
+         transform="translate(185.9,130)"
+         id="g13">
+        <polygon
+           points="81.41,-47 98.73,-57 98.73,23 81.41,33 "
+           fill="#5e5e5e"
+           id="polygon1" />
+        <polygon
+           points="81.41,-47 12.12,-87 12.12,-7 81.41,33 "
+           fill="#5e5e5e"
+           id="polygon2" />
+        <polygon
+           points="81.41,-47 12.12,-87 29.44,-97 98.73,-57 "
+           fill="#7a7a7a"
+           id="polygon3" />
+        <polygon
+           points="-43.3,25 86.6,-50 86.6,50 -43.3,125 "
+           fill="#bdbdbd"
+           id="polygon4" />
+        <polygon
+           points="-43.3,25 -129.9,-25 -129.9,75 -43.3,125 "
+           fill="#8c8c8c"
+           id="polygon5" />
+        <polygon
+           points="-43.3,25 -129.9,-25 0,-100 86.6,-50 "
+           fill="#e5e5e5"
+           id="polygon6" />
+        <polygon
+           points="-51.96,30 -38.11,22 -38.11,142 -51.96,150 "
+           fill="#bdbdbd"
+           id="polygon7" />
+        <polygon
+           points="-51.96,30 -155.88,-30 -155.88,90 -51.96,150 "
+           fill="#8c8c8c"
+           id="polygon8" />
+        <polygon
+           points="-51.96,30 -155.88,-30 -142.03,-38 -38.11,22 "
+           fill="#e5e5e5"
+           id="polygon9" />
+        <polygon
+           points="-90.32,74.36 -91.17,75.86 -92.24,77.09 -93.51,78.03 -129.89,99.03 -131.33,99.66 -132.93,99.97 -134.66,99.96 -136.49,99.62 -138.37,98.96 -140.3,98 -142.22,96.75 -144.11,95.22 -145.93,93.45 -147.66,91.47 -149.26,89.31 -150.71,87.01 -151.98,84.61 -153.05,82.14 -153.9,79.65 -154.52,77.19 -154.89,74.79 -155.02,72.5 -154.89,70.35 -154.52,68.39 -153.9,66.64 -153.05,65.14 -151.98,63.91 -150.71,62.97 -114.33,41.97 -112.89,41.34 -111.28,41.03 -109.56,41.04 -107.73,41.38 -105.84,42.04 -103.92,43 -102,44.25 -100.11,45.78 -98.29,47.55 -96.56,49.53 -94.96,51.69 -93.51,53.99 -92.24,56.39 -91.17,58.86 -90.32,61.35 -89.7,63.81 -89.33,66.21 -89.2,68.5 -89.33,70.65 -89.7,72.61 "
+           fill="#bdbdbd"
+           id="polygon10" />
+        <polygon
+           points="-150.71,87.01 -149.26,89.31 -147.66,91.47 -145.93,93.45 -144.11,95.22 -142.22,96.75 -140.3,98 -138.37,98.96 -136.49,99.62 -134.66,99.96 -132.93,99.97 -131.33,99.66 -129.89,99.03 -128.62,98.09 -127.55,96.86 -126.69,95.36 -126.08,93.61 -125.7,91.65 -125.57,89.5 -125.7,87.21 -126.08,84.81 -126.69,82.35 -127.55,79.86 -128.62,77.39 -129.89,74.99 -131.33,72.69 -132.93,70.53 -134.66,68.55 -136.49,66.78 -138.37,65.25 -140.3,64 -142.22,63.04 -144.11,62.38 -145.93,62.04 -147.66,62.03 -149.26,62.34 -150.71,62.97 -151.98,63.91 -153.05,65.14 -153.9,66.64 -154.52,68.39 -154.89,70.35 -155.02,72.5 -154.89,74.79 -154.52,77.19 -153.9,79.65 -153.05,82.14 -151.98,84.61 "
+           fill="#e5e5e5"
+           id="polygon11" />
+        <polygon
+           points="50.23,1.8 50.23,51 -6.93,84 -6.93,34.8 10.22,24.9 10.22,14.1 33.08,0.9 33.08,11.7 "
+           fill="#1a1a1a"
+           id="polygon12" />
+      </g>
+      <polygon
+         points="322.1,280.6 384.9,246.2 410.9,261.2 348.1,295.6 "
+         fill="#ffb54d"
+         id="polygon1-1"
+         transform="matrix(0.77277828,0,0,0.77277828,-66.310863,-50.80188)" />
+      <polygon
+         points="322.1,280.6 322.1,334.8 348.1,349.8 348.1,295.6 "
+         fill="#c96f00"
+         id="polygon2-2"
+         transform="matrix(0.77277828,0,0,0.77277828,-66.310863,-50.80188)" />
+      <polygon
+         points="348.1,295.6 410.9,261.2 410.9,315.4 348.1,349.8 "
+         fill="#ff9300"
+         id="polygon3-9"
+         transform="matrix(0.77277828,0,0,0.77277828,-66.310863,-50.80188)" />
+      <path
+         d="m 229.56741,185.99341 39.58477,23.63099 c 9.78854,5.66704 21.12262,8.50056 34.00225,8.50056 h 290.64314"
+         fill="none"
+         stroke="#e5e5e5"
+         stroke-width="18.5467"
+         id="path3-31"
+         style="stroke-width:19.747;stroke-linecap:round;stroke-dasharray:none"
+         sodipodi:nodetypes="ccsc" />
+    </g>
+  </g>
+</svg>

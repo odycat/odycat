@@ -1,0 +1,1 @@
+{"bus": "b", "cycle_us": 250, "slaves": [{"position": 0, "label": "x", "vendor_id": "0x1", "product_code": "0x2", "txpdo": {"index": "0x1A00", "entries": [{"index": "0x6000", "subindex": 1, "type": "u64"}]}, "rxpdo": {"index": "0x1600", "entries": [{"index": "0x7000", "subindex": 1, "type": "f64"}]}, "dc_sync": 250000}]}

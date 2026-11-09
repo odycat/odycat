@@ -1,0 +1,118 @@
+<?xml version="1.0" ?>
+<EtherCATInfo>
+  <!-- Slave 1 -->
+  <Vendor>
+    <Id>591240</Id>
+  </Vendor>
+  <Descriptions>
+    <Devices>
+      <Device>
+        <Type ProductCode="#x00109252" RevisionNo="#x00058100">IMC IO EtherCAT</Type>
+        <Name><![CDATA[IMC IO MODEL with EtherCAT]]></Name>
+        <Sm Enable="1" StartAddress="#x1000" ControlByte="#x26" DefaultSize="128" />
+        <Sm Enable="1" StartAddress="#x1100" ControlByte="#x22" DefaultSize="128" />
+        <Sm Enable="1" StartAddress="#x1200" ControlByte="#x64" DefaultSize="0" />
+        <Sm Enable="1" StartAddress="#x1400" ControlByte="#x20" DefaultSize="0" />
+        <RxPdo Sm="2" Fixed="1" Mandatory="1">
+          <Index>#x1600</Index>
+          <Name>RxPDO-Map</Name>
+          <Entry>
+            <Index>#x2300</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2310</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2311</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2320</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2321</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2330</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2331</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+        </RxPdo>
+        <TxPdo Sm="3" Fixed="1" Mandatory="1">
+          <Index>#x1a00</Index>
+          <Name>TxPDO-Map</Name>
+          <Entry>
+            <Index>#x2000</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2010</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2011</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2020</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2030</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x2031</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+        </TxPdo>
+      </Device>
+    </Devices>
+  </Descriptions>
+</EtherCATInfo>

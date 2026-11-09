@@ -1,0 +1,104 @@
+<?xml version="1.0" ?>
+<EtherCATInfo>
+  <!-- Slave 0 -->
+  <Vendor>
+    <Id>2696</Id>
+  </Vendor>
+  <Descriptions>
+    <Devices>
+      <Device>
+        <Type ProductCode="#x0a880002" RevisionNo="#x00000202">ECT60V202</Type>
+        <Name><![CDATA[ECT60V202(COE)]]></Name>
+        <Sm Enable="1" StartAddress="#x1000" ControlByte="#x26" DefaultSize="64" />
+        <Sm Enable="1" StartAddress="#x1080" ControlByte="#x22" DefaultSize="64" />
+        <Sm Enable="1" StartAddress="#x1100" ControlByte="#x64" DefaultSize="0" />
+        <Sm Enable="1" StartAddress="#x1400" ControlByte="#x20" DefaultSize="0" />
+        <RxPdo Sm="2" Fixed="1" Mandatory="1">
+          <Index>#x1600</Index>
+          <Name>Receive PDO 1</Name>
+          <Entry>
+            <Index>#x6040</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6060</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>8</BitLen>
+            <Name></Name>
+            <DataType>UINT8</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x607a</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x60ff</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x60fe</Index>
+            <SubIndex>1</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+        </RxPdo>
+        <TxPdo Sm="3" Fixed="1" Mandatory="1">
+          <Index>#x1a00</Index>
+          <Name>Transmit PDO 1</Name>
+          <Entry>
+            <Index>#x6041</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6061</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>8</BitLen>
+            <Name></Name>
+            <DataType>UINT8</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6064</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x606c</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x60fd</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>32</BitLen>
+            <Name></Name>
+            <DataType>UINT32</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x603f</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>16</BitLen>
+            <Name></Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+        </TxPdo>
+      </Device>
+    </Devices>
+  </Descriptions>
+</EtherCATInfo>

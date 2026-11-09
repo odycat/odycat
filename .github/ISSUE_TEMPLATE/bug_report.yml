@@ -1,0 +1,84 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+# Copyright (c) 2026 Ocean Octane S.L.U.
+name: Bug report
+description: Something in OdyCAT does not work as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. The more of the form you
+        fill in, the sooner we can reproduce it.
+
+        - **Security problems**: do not open an issue; follow SECURITY.md
+          (security@odycat.org).
+        - **New device classes:** see "Devices" in CONTRIBUTING.md. For
+          commissioned development or bench testing, contact devices@odycat.org.
+        - **Late or skipped cycles, DC drives dropping out of OP**: the
+          "Is scheduling your problem?" table in docs/realtime.md often
+          answers it.
+  - type: input
+    id: version
+    attributes:
+      label: OdyCAT version
+      description: "`pip show odycat`, or the git commit if you built it yourself."
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        Distribution and version, kernel (`uname -a`), IgH EtherCAT Master
+        version and NIC driver (`ec_generic`, `ec_igb`...), Python version,
+        and whether the engine runs with real-time scheduling (`sudo`,
+        capabilities, `rt_flags`).
+      placeholder: |
+        Debian 13, Linux 6.12.115 PREEMPT_DYNAMIC
+        IgH 1.6.13, ec_generic on r8169
+        Python 3.13, engine with sudo (rt_flags 3)
+    validations:
+      required: true
+  - type: textarea
+    id: bus
+    attributes:
+      label: Slaves on the bus
+      description: The output of `ethercat slaves`, and the device classes or config entries involved.
+      render: text
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, including any error message in full.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce it
+      description: The smallest script and config that show the problem (remove anything private).
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: engine-log
+    attributes:
+      label: Engine output
+      description: What `odycat` printed from startup to the problem.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and this is not one of them.
+          required: true
+        - label: I checked docs/troubleshooting.md.
+          required: true

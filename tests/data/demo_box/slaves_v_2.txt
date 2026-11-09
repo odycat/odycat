@@ -1,0 +1,39 @@
+=== Master 0, Slave 2 ===
+Alias: 40
+Device: Main
+State: PREOP
+Flag: +
+Identity:
+  Vendor Id:       0x00000b95
+  Product code:    0x00001101
+  Revision number: 0x01020109
+  Serial number:   0x00000000
+DL information:
+  FMMU bit operation: no
+  Distributed clocks: yes, 64 bit
+  DC system time transmission delay: 1540 ns
+Port  Type  Link  Loop    Signal  NextSlave  RxTime [ns]  Diff [ns]   NextDc [ns]
+   0  MII   up    open    yes             1   1246412858           0         820
+   1  MII   up    open    yes             3   1246417898        5040         820
+   2  N/A   down  closed  no              -            -           -           -
+   3  N/A   down  closed  no              -            -           -           -
+Mailboxes:
+  Bootstrap RX: 0x0000/0, TX: 0x0000/0
+  Standard  RX: 0x1000/128, TX: 0x1080/128
+  Supported protocols: CoE, FoE
+General:
+  Group: AMX_EC_BOOK
+  Image name: 
+  Order number: EC3A-IO1632
+  Device name: EC3A-IO1632
+  CoE details:
+    Enable SDO: yes
+    Enable SDO Info: yes
+    Enable PDO Assign: no
+    Enable PDO Configuration: no
+    Enable Upload at startup: no
+    Enable SDO complete access: yes
+  Flags:
+    Enable SafeOp: no
+    Enable notLRW: no
+  Current consumption: 0 mA

@@ -1,0 +1,55 @@
+{
+  "bus": "demo_box",
+  "cycle_us": 1000,
+  "history_s": 10,
+  "slaves": [
+    {
+      "device": "leadshine.ECT60", "alias": 60, "position": 0, "label": "stepper_x",
+      "sdos": [
+        { "index": "0x6081", "subindex": 0, "type": "u32", "value": 50000,  "label": "profile_velocity" },
+        { "index": "0x6083", "subindex": 0, "type": "u32", "value": 20000,  "label": "profile_acceleration" },
+        { "index": "0x6084", "subindex": 0, "type": "u32", "value": 20000,  "label": "profile_deceleration" },
+        { "index": "0x6085", "subindex": 0, "type": "u32", "value": 500000, "label": "quick_stop_deceleration" }
+      ]
+    },
+    {
+      "alias": 50,
+      "position": 0,
+      "name": "CATIO-A",
+      "label": "catio",
+      "vendor_id": "0x00090588",
+      "product_code": "0x00109252",
+      "txpdo": {
+        "index": "0x1A00",
+        "entries": [
+          { "index": "0x2000", "subindex": 0, "type": "u16", "label": "digital_inputs" },
+          { "index": "0x2010", "subindex": 0, "type": "i16", "label": "analog_in_1" },
+          { "index": "0x2011", "subindex": 0, "type": "i16", "label": "analog_in_2" },
+          { "index": "0x2020", "subindex": 0, "type": "i32", "label": "encoder" },
+          { "index": "0x2030", "subindex": 0, "type": "i32", "label": "counter_1" },
+          { "index": "0x2031", "subindex": 0, "type": "i32", "label": "counter_2" }
+        ]
+      },
+      "rxpdo": {
+        "index": "0x1600",
+        "entries": [
+          { "index": "0x2300", "subindex": 0, "type": "u16", "label": "digital_outputs" },
+          { "index": "0x2310", "subindex": 0, "type": "u16", "label": "analog_out_1" },
+          { "index": "0x2311", "subindex": 0, "type": "u16", "label": "analog_out_2" },
+          { "index": "0x2320", "subindex": 0, "type": "u32", "label": "pwm_freq_1" },
+          { "index": "0x2321", "subindex": 0, "type": "u32", "label": "pwm_freq_2" },
+          { "index": "0x2330", "subindex": 0, "type": "u16", "label": "pwm_duty_1" },
+          { "index": "0x2331", "subindex": 0, "type": "u16", "label": "pwm_duty_2" }
+        ]
+      }
+    },
+    { "device": "amsamotion.EC3A_IO1632", "alias": 40, "position": 0, "label": "io_module" },
+    {
+      "alias": 1, "position": 0, "name": "AX-500CEC00", "label": "delta_coupler",
+      "vendor_id": "0x000001dd", "product_code": "0x10518000",
+      "txpdo": { "entries": [] }, "rxpdo": { "entries": [] }
+    },
+    { "device": "delta.AX516AM", "alias": 2, "position": 0, "label": "delta_di16" },
+    { "device": "delta.AX516AN", "alias": 3, "position": 0, "label": "delta_do16" }
+  ]
+}

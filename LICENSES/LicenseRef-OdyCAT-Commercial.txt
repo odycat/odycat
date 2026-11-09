@@ -1,0 +1,15 @@
+OdyCAT Commercial License
+
+OdyCAT is dual-licensed. Every file marked
+
+    SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+
+may be used under the GNU General Public License version 3 only
+(LICENSES/GPL-3.0-only.txt), or under a commercial license.
+
+A commercial license is a written agreement with Yoctovision S.L.U., which
+licenses OdyCAT from its owner, Ocean Octane S.L.U. Its terms are those of
+that agreement; this file grants no rights by itself. See LICENSING.md for
+when a commercial license is needed and what it covers.
+
+Contact: licensing@odycat.org · https://odycat.org

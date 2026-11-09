@@ -1,0 +1,175 @@
+{
+ "bus": "bus0",
+ "cycle_us": 1000,
+ "history_s": 2,
+ "require_rt": false,
+ "master": 0,
+ "shm_group": "odycat",
+ "slaves": [
+  {
+   "alias": 60,
+   "label": "drive",
+   "vendor_id": "0x00000A88",
+   "product_code": "0x0A880002",
+   "txpdo": {
+    "index": "0x1A00",
+    "entries": [
+     {
+      "index": "0x6041",
+      "subindex": 0,
+      "type": "u16"
+     },
+     {
+      "index": "0x6064",
+      "subindex": 0,
+      "type": "i32"
+     },
+     {
+      "index": "0x60FD",
+      "subindex": 0,
+      "type": "u32"
+     },
+     {
+      "index": "0x6061",
+      "subindex": 0,
+      "type": "i8"
+     }
+    ]
+   },
+   "rxpdo": {
+    "index": "0x1600",
+    "entries": [
+     {
+      "index": "0x6040",
+      "subindex": 0,
+      "type": "u16"
+     },
+     {
+      "index": "0x607A",
+      "subindex": 0,
+      "type": "i32"
+     },
+     {
+      "index": "0x6060",
+      "subindex": 0,
+      "type": "i8"
+     },
+     {
+      "index": "0x0000",
+      "subindex": 0,
+      "bits": 8
+     }
+    ]
+   },
+   "sdos": [
+    {
+     "index": "0x6081",
+     "subindex": 0,
+     "type": "u32",
+     "value": 50000,
+     "label": "velocity"
+    },
+    {
+     "index": "0x6083",
+     "subindex": "0x00",
+     "type": "i32",
+     "value": "-2000"
+    },
+    {
+     "index": "0x2000",
+     "subindex": 1,
+     "type": "f32",
+     "value": 1.5
+    },
+    {
+     "index": "0x2001",
+     "subindex": 2,
+     "type": "f32",
+     "value": "0x3FC00000"
+    },
+    {
+     "index": "0x2002",
+     "subindex": 0,
+     "type": "bool",
+     "value": true
+    }
+   ],
+   "dc_sync": {
+    "assign_activate": "0x0300",
+    "sync0_cycle_ns": 2000000,
+    "sync0_shift_ns": -50000
+   },
+   "sync_group": "axes"
+  },
+  {
+   "position": 1,
+   "label": "io",
+   "vendor_id": "0x00000002",
+   "product_code": "0x07113052",
+   "txpdo": [
+    {
+     "index": "0x1A00",
+     "entries": [
+      {
+       "index": "0x6000",
+       "subindex": 1,
+       "bits": 1
+      },
+      {
+       "index": "0x6000",
+       "subindex": 2,
+       "bits": 1
+      },
+      {
+       "index": "0x0000",
+       "subindex": 0,
+       "bits": 6
+      }
+     ]
+    },
+    {
+     "index": "0x1A01",
+     "entries": [
+      {
+       "index": "0x6010",
+       "subindex": 17,
+       "type": "i16"
+      }
+     ]
+    }
+   ],
+   "rxpdo": {
+    "index": "0x1600",
+    "entries": [
+     {
+      "index": "0x7000",
+      "subindex": 1,
+      "type": "u8"
+     }
+    ]
+   },
+   "dc_sync": 0,
+   "sync_group": "axes"
+  },
+  {
+   "alias": "0x3C",
+   "position": 1,
+   "label": "inputs_only",
+   "vendor_id": "0x000001DD",
+   "product_code": "0x10512081",
+   "txpdo": {
+    "index": "0x1A00",
+    "entries": [
+     {
+      "index": 24576,
+      "subindex": 1,
+      "type": "u16"
+     }
+    ]
+   },
+   "rxpdo": {
+    "entries": []
+   }
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+# Copyright (c) 2026 Ocean Octane S.L.U.
+# IgH EtherCAT master devices for the odycat group: members can run the
+# engine and odycat-config without root. Install:
+#   sudo cp packaging/udev/99-ethercat.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload && sudo udevadm trigger
+KERNEL=="EtherCAT[0-9]*", GROUP="odycat", MODE="0660"

@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<EtherCATInfo>
+  <!-- Slave 3 -->
+  <Vendor>
+    <Id>477</Id>
+  </Vendor>
+  <Descriptions>
+    <Devices>
+      <Device>
+        <Type ProductCode="#x10518000" RevisionNo="#x01000000">AX-500CEC00-0A (EtherCAT Coupler)</Type>
+        <Name><![CDATA[AX-500CEC00-0A (EtherCAT Coupler)]]></Name>
+        <Sm Enable="1" StartAddress="#x1000" ControlByte="#x0" DefaultSize="0" />
+        <TxPdo Sm="0" Fixed="1" Mandatory="1">
+          <Index>#x1a00</Index>
+          <Name>Error and Alarm</Name>
+          <Entry>
+            <Index>#x6000</Index>
+            <SubIndex>1</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>Unit Power Input Low Voltage Warning</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x0000</Index>
+            <BitLen>7</BitLen>
+          </Entry>
+        </TxPdo>
+      </Device>
+    </Devices>
+  </Descriptions>
+</EtherCATInfo>

@@ -1,0 +1,139 @@
+<?xml version="1.0" ?>
+<EtherCATInfo>
+  <!-- Slave 5 -->
+  <Vendor>
+    <Id>477</Id>
+  </Vendor>
+  <Descriptions>
+    <Devices>
+      <Device>
+        <Type ProductCode="#x10512181" RevisionNo="#x01000000">AX-516AN02-0A</Type>
+        <Name><![CDATA[AX-516AN02-0A (16 DO, 24VDC, 0.5A, 1ms, Source Output (PNP))]]></Name>
+        <Sm Enable="1" StartAddress="#x1000" ControlByte="#x26" DefaultSize="128" />
+        <Sm Enable="1" StartAddress="#x1080" ControlByte="#x22" DefaultSize="128" />
+        <Sm Enable="1" StartAddress="#x1100" ControlByte="#x64" DefaultSize="2" />
+        <Sm Enable="0" StartAddress="#x1400" ControlByte="#x20" DefaultSize="0" />
+        <RxPdo Sm="2" Fixed="1" Mandatory="1">
+          <Index>#x1600</Index>
+          <Name>CH0 to CH7 Digital Output Status</Name>
+          <Entry>
+            <Index>#x7000</Index>
+            <SubIndex>1</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7000</Index>
+            <SubIndex>2</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7000</Index>
+            <SubIndex>3</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7000</Index>
+            <SubIndex>4</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7000</Index>
+            <SubIndex>5</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7000</Index>
+            <SubIndex>6</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7000</Index>
+            <SubIndex>7</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7000</Index>
+            <SubIndex>8</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+        </RxPdo>
+        <RxPdo Sm="2" Fixed="1" Mandatory="1">
+          <Index>#x1601</Index>
+          <Name>CH8 to CH15 Digital Output Status</Name>
+          <Entry>
+            <Index>#x7001</Index>
+            <SubIndex>1</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7001</Index>
+            <SubIndex>2</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7001</Index>
+            <SubIndex>3</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7001</Index>
+            <SubIndex>4</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7001</Index>
+            <SubIndex>5</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7001</Index>
+            <SubIndex>6</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7001</Index>
+            <SubIndex>7</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x7001</Index>
+            <SubIndex>8</SubIndex>
+            <BitLen>1</BitLen>
+            <Name></Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+        </RxPdo>
+      </Device>
+    </Devices>
+  </Descriptions>
+</EtherCATInfo>
