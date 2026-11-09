@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
 # Copyright (c) 2026 Ocean Octane S.L.U.
 [build-system]
-requires = ["setuptools>=77", "wheel"]   # 77: SPDX license expressions
+requires = ["setuptools>=84.2.1", "wheel"]   # 77: SPDX license expressions
 build-backend = "setuptools.build_meta:__legacy__"
 # Python 3.11 is the floor (python_requires in setup.py).
 [tool.ruff]
