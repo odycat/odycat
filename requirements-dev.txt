@@ -10,4 +10,4 @@
 # Linting (optional, ci/lint.sh skips it when ruff is missing):
 #     python3 -m ruff check .
 pytest>=7
-ruff>=0.6
+ruff>=0.17.4
