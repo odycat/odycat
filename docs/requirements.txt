@@ -1,4 +1,4 @@
 # Documentation site (make docs). Not needed to use OdyCAT.
 sphinx>=8,<10
-myst-parser>=4,<6
+myst-parser>=5.1.0,<6
 furo>=2024.8.6
