@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+# Copyright (c) 2026 Ocean Octane S.L.U.
+[build-system]
+requires = ["setuptools>=77", "wheel"]   # 77: SPDX license expressions
+build-backend = "setuptools.build_meta:__legacy__"
+# Python 3.11 is the floor (python_requires in setup.py).
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["build", "dist", ".venv", "engine"]
+
+[tool.ruff.lint]
+# Default rule set (pyflakes + the pycodestyle error groups) keeps CI useful
+# without reformatting the existing sources.
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# Vendor package __init__ files re-export their device classes.
+"__init__.py" = ["F401"]
+# Tests put src/ on sys.path before importing odycat.
+"tests/*" = ["E402"]
+
+# Release wheels (.github/workflows/release.yml): one cp311-abi3 manylinux
+# wheel per architecture, built once on Python 3.11 and tested with every
+# later Python against the installed wheel (tests/_support.py). The runner
+# decides the architecture (x86-64, or aarch64 on an ARM runner).
+[tool.cibuildwheel]
+build = ["cp311-manylinux_*", "cp312-manylinux_*", "cp313-manylinux_*", "cp314-manylinux_*"]
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+test-environment = { ODYCAT_TEST_INSTALLED = "1" }
+test-command = "python -m unittest discover -s {project}/tests -t {project}/tests"

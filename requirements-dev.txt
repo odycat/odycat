@@ -1,0 +1,13 @@
+# Development / CI tools for OdyCAT.
+#
+# The unit tests in tests/ use only the Python standard library, so they also
+# run on a machine with none of these installed:
+#     python3 -m unittest discover -s tests -t tests
+#
+# With pytest (nicer reporting, markers, JUnit XML for CI):
+#     pip install -r requirements-dev.txt && python3 -m pytest tests
+#
+# Linting (optional, ci/lint.sh skips it when ruff is missing):
+#     python3 -m ruff check .
+pytest>=7
+ruff>=0.6

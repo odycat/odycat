@@ -1,0 +1,86 @@
+# ---------------------------------------------------------------------------
+# OdyCAT .gitignore  (Python + C / setuptools + make + IgH EtherCAT)
+# ---------------------------------------------------------------------------
+
+# --- Python bytecode / caches ----------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# --- Compiled objects -------------------------------------------------------
+*.so
+*.o
+*.a
+*.obj
+*.lo
+*.la
+*.egg
+*.egg-info/
+.eggs/
+
+# --- Build / packaging output ----------------------------------------------
+build/
+dist/
+wheelhouse/
+sdist/
+MANIFEST
+MANIFEST.bak
+compile_commands.json
+
+# --- Compiled engine binaries ----------------------------------------------
+# Produced by `make engine` and `make -C engine config-dump` (the wheel does
+# not contain the engine).
+/engine/odycat
+/engine/tests/config_dump
+
+# --- Virtual environments ---------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+.virtualenvs/
+
+# --- Test / coverage / profiling output -------------------------------------
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+reports/
+*.log
+profile_default/
+ipython.py
+
+# --- Local machine-specific config ------------------------------------------
+# Shared configs (examples/, tests/data/) stay tracked; local overrides
+# generated while debugging on a specific machine do not.
+*.local.json
+config.local.json
+*.local.yaml
+
+# --- Editors / OS -----------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+sii_backup/
+
+# Vendor ESI / device description files (kept local)
+xml/
+
+# --- Soak test results ---------------------------------------------------------
+soak_runs/
+
+# --- Documentation build (make docs) -----------------------------------------
+docs/_build/
+docs/generated/

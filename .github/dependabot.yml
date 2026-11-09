@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+# Copyright (c) 2026 Ocean Octane S.L.U.
+# Proposes updates of the pinned GitHub Actions and of the tools CI and the
+# docs install. The odycat package itself has no dependencies.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+  - package-ecosystem: pip
+    directories: [/, /docs]
+    schedule:
+      interval: monthly

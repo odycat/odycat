@@ -1,0 +1,36 @@
+{
+  "bus": "bus0",
+  "cycle_us": 1000,
+  "slaves": [
+    { "device": "beckhoff.EL2809", "position": 0, "label": "outputs_card_a" },
+    { "device": "beckhoff.EL1809", "position": 1, "label": "inputs_card_a" },
+    {
+      "position": 2,
+      "name": "CiA402_Servo",
+      "label": "servo_axis_1",
+      "vendor_id": "0x000001DD",
+      "product_code": "0x10305070",
+      "sdos": [
+        { "index": "0x6060", "subindex": 0, "type": "i8", "value": 8 }
+      ],
+      "rxpdo": {
+        "index": "0x1600",
+        "entries": [
+          { "index": "0x6040", "subindex": 0, "type": "u16" },
+          { "index": "0x607A", "subindex": 0, "type": "i32" },
+          { "index": "0x60FF", "subindex": 0, "type": "i32" },
+          { "index": "0x6071", "subindex": 0, "type": "u16" }
+        ]
+      },
+      "txpdo": {
+        "index": "0x1A00",
+        "entries": [
+          { "index": "0x6041", "subindex": 0, "type": "u16" },
+          { "index": "0x6064", "subindex": 0, "type": "i32" },
+          { "index": "0x606C", "subindex": 0, "type": "i32" },
+          { "index": "0x6077", "subindex": 0, "type": "u16" }
+        ]
+      }
+    }
+  ]
+}

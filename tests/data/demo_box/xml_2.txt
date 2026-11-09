@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<EtherCATInfo>
+  <!-- Slave 2 -->
+  <Vendor>
+    <Id>2965</Id>
+  </Vendor>
+  <Descriptions>
+    <Devices>
+      <Device>
+        <Type ProductCode="#x00001101" RevisionNo="#x01020109">EC3A-IO1632</Type>
+        <Name><![CDATA[EC3A-IO1632]]></Name>
+        <Sm Enable="1" StartAddress="#x1000" ControlByte="#x26" DefaultSize="128" />
+        <Sm Enable="1" StartAddress="#x1080" ControlByte="#x22" DefaultSize="128" />
+        <Sm Enable="1" StartAddress="#x1100" ControlByte="#x64" DefaultSize="2" />
+        <Sm Enable="1" StartAddress="#x1400" ControlByte="#x20" DefaultSize="2" />
+        <RxPdo Sm="2" Fixed="1" Mandatory="1">
+          <Index>#x1600</Index>
+          <Name>DOOutputs process data mapping</Name>
+          <Entry>
+            <Index>#x7000</Index>
+            <SubIndex>1</SubIndex>
+            <BitLen>16</BitLen>
+            <Name>OUT_GEN_DO</Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+        </RxPdo>
+        <TxPdo Sm="3" Fixed="1" Mandatory="1">
+          <Index>#x1a00</Index>
+          <Name>DIInputs process data mapping</Name>
+          <Entry>
+            <Index>#x6000</Index>
+            <SubIndex>1</SubIndex>
+            <BitLen>16</BitLen>
+            <Name>IN_GEN_DI</Name>
+            <DataType>UINT16</DataType>
+          </Entry>
+        </TxPdo>
+      </Device>
+    </Devices>
+  </Descriptions>
+</EtherCATInfo>

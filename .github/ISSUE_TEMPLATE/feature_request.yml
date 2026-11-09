@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+# Copyright (c) 2026 Ocean Octane S.L.U.
+name: Feature request
+description: An idea to make OdyCAT more useful.
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas for OdyCAT are welcome. Describe the problem you encountered
+        and how the library could help. The maintainers decide which changes
+        fit the project (see GOVERNANCE.md).
+
+        For a new device class, see "Devices" in CONTRIBUTING.md. To discuss
+        an application or machine rather than a library change, contact
+        Yoctovision (https://www.yoctovision.com).
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you are trying to do on your machine, and what gets in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+      description: How OdyCAT could help. An example of the code you would like to write is very useful.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you do now instead
+      description: Workarounds or other tools you use for this today.
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Would you like to implement it?
+      description: If yes, wait until we agree on the approach here before opening a pull request (CONTRIBUTING.md).
+      options:
+        - "No"
+        - "Yes, once we agree on the approach"
+    validations:
+      required: true

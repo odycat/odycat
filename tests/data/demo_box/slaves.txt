@@ -1,0 +1,6 @@
+0  60:0  PREOP  +  ECT60V202(COE)
+1  50:0  PREOP  +  IMC IO MODEL with EtherCAT
+2  40:0  PREOP  +  EC3A-IO1632
+3   1:0  PREOP  +  AX-500CEC00-0A (EtherCAT Coupler)
+4   2:0  PREOP  +  AX-516AM20-0A (16 DI, 24VDC, 2.5mA, 1ms, Sink Input (PNP))
+5   3:0  PREOP  +  AX-516AN02-0A (16 DO, 24VDC, 0.5A, 1ms, Source Output (PNP))

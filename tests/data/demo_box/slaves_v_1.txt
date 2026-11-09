@@ -1,0 +1,39 @@
+=== Master 0, Slave 1 ===
+Alias: 50
+Device: Main
+State: PREOP
+Flag: +
+Identity:
+  Vendor Id:       0x00090588
+  Product code:    0x00109252
+  Revision number: 0x00058100
+  Serial number:   0x00000000
+DL information:
+  FMMU bit operation: no
+  Distributed clocks: yes, 64 bit
+  DC system time transmission delay: 720 ns
+Port  Type  Link  Loop    Signal  NextSlave  RxTime [ns]  Diff [ns]   NextDc [ns]
+   0  MII   up    open    yes             0   2056603450           0         720
+   1  MII   up    open    yes             2   2056610130        6680         820
+   2  N/A   down  closed  no              -            -           -           -
+   3  N/A   down  closed  no              -            -           -           -
+Mailboxes:
+  Bootstrap RX: 0x0000/0, TX: 0x0000/0
+  Standard  RX: 0x1000/128, TX: 0x1100/128
+  Supported protocols: CoE, FoE
+General:
+  Group: ECAT-IMC
+  Image name: 
+  Order number: IMC IO EtherCAT
+  Device name: IMC IO MODEL with EtherCAT
+  CoE details:
+    Enable SDO: yes
+    Enable SDO Info: yes
+    Enable PDO Assign: yes
+    Enable PDO Configuration: yes
+    Enable Upload at startup: no
+    Enable SDO complete access: yes
+  Flags:
+    Enable SafeOp: no
+    Enable notLRW: no
+  Current consumption: 0 mA

@@ -1,0 +1,39 @@
+=== Master 0, Slave 4 ===
+Alias: 2
+Device: Main
+State: PREOP
+Flag: +
+Identity:
+  Vendor Id:       0x000001dd
+  Product code:    0x10512081
+  Revision number: 0x01000000
+  Serial number:   0x00000000
+DL information:
+  FMMU bit operation: no
+  Distributed clocks: yes, 64 bit
+  DC system time transmission delay: 3200 ns
+Port  Type  Link  Loop    Signal  NextSlave  RxTime [ns]  Diff [ns]   NextDc [ns]
+   0  MII   up    open    yes             3   1733457490           0         840
+   1  MII   up    open    yes             5   1733459210        1720         860
+   2  N/A   down  closed  no              -            -           -           -
+   3  N/A   down  closed  no              -            -           -           -
+Mailboxes:
+  Bootstrap RX: 0x1000/128, TX: 0x1080/128
+  Standard  RX: 0x1000/128, TX: 0x1080/128
+  Supported protocols: CoE, FoE
+General:
+  Group: 
+  Image name: 
+  Order number: AX-516AM20-0A
+  Device name: AX-516AM20-0A (16 DI, 24VDC, 2.5mA, 1ms, Sink Input (PNP))
+  CoE details:
+    Enable SDO: yes
+    Enable SDO Info: yes
+    Enable PDO Assign: yes
+    Enable PDO Configuration: no
+    Enable Upload at startup: no
+    Enable SDO complete access: yes
+  Flags:
+    Enable SafeOp: no
+    Enable notLRW: no
+  Current consumption: 0 mA

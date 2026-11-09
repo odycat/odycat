@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-OdyCAT-Commercial
+// Copyright (c) 2026 Ocean Octane S.L.U.
+// Members of the odycat group may start, stop and restart the OdyCAT engine
+// services (odycat@<config>.service) without sudo. Nothing else.
+polkit.addRule(function (action, subject) {
+    if (action.id !== "org.freedesktop.systemd1.manage-units" ||
+            !subject.isInGroup("odycat")) {
+        return polkit.Result.NOT_HANDLED;
+    }
+    var unit = action.lookup("unit") || "";
+    var verb = action.lookup("verb") || "";
+    if (unit.indexOf("odycat@") === 0 &&
+            (verb === "start" || verb === "stop" || verb === "restart")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
