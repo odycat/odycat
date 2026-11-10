@@ -58,7 +58,7 @@ def _long_description() -> str:
 setup(
     name="odycat",
     version=VERSION,
-    description="OdyCAT — EtherCAT from Python on Linux (IgH EtherCAT Master)",
+    description="Open machine and factory automation with Python: EtherCAT on Linux",
     long_description=_long_description(),
     long_description_content_type="text/markdown",
     author="Javier Martínez García",

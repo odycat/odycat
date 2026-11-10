@@ -5,8 +5,9 @@
 
     python3 ci/release_check.py tag vX.Y.Z [--date YYYY-MM-DD]
         The tag matches src/odycat/_version.py; CHANGELOG.md has a dated entry
-        for the version; SUPPORT_END is at least five years after the date
-        (default: today, UTC); SECURITY.md lists the release line.
+        for the version; SUPPORT_END is the support end of its major version
+        (SUPPORT_ENDS), at least five years after the date (default: today,
+        UTC) for X.0.0; SECURITY.md lists the release line.
 
     python3 ci/release_check.py dist DIR
         DIR holds the sdist, the pure wheel and one wheel per architecture,
@@ -26,6 +27,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SUPPORT_YEARS = 5                       # minimum support period (CRA)
+# The support end (YYYYMM) of each major version, fixed by its first release
+# X.0.0 at least SUPPORT_YEARS after it. Later releases of that major keep
+# it: a new support period comes with the next major version or with a
+# dedicated support statement (then change it here, and in SECURITY.md).
+SUPPORT_ENDS = {1: 203111}
 ARCH_WHEELS = ("x86_64", "aarch64")
 
 
@@ -58,10 +64,19 @@ def check_tag(tag: str, day: date) -> None:
         fail(f"CHANGELOG.md dates {version} {dated}, after the release day {day}")
     print(f"== CHANGELOG.md: [{version}] - {dated}")
 
-    need = (day.year + SUPPORT_YEARS) * 100 + day.month
-    if support_end < need:
-        fail(f"SUPPORT_END = {support_end} in src/odycat/_version.py: at least {need} "
-             f"({SUPPORT_YEARS} years from {day:%Y-%m})")
+    major = int(version.split(".")[0])
+    fixed = SUPPORT_ENDS.get(major)
+    if fixed is None:
+        fail(f"no support end for {major}.x in SUPPORT_ENDS (ci/release_check.py): "
+             f"{major}.0.0 sets it, at least {SUPPORT_YEARS} years after its release")
+    if support_end != fixed:
+        fail(f"SUPPORT_END = {support_end} in src/odycat/_version.py: {major}.x has "
+             f"{fixed} (SUPPORT_ENDS); later releases do not change the support period")
+    if version == f"{major}.0.0":
+        need = (day.year + SUPPORT_YEARS) * 100 + day.month
+        if support_end < need:
+            fail(f"SUPPORT_END = {support_end} for {version}: at least {need} "
+                 f"({SUPPORT_YEARS} years from {day:%Y-%m})")
     shown = f"{support_end // 100:04d}-{support_end % 100:02d}"
     print(f"== support until {shown}")
 

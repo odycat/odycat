@@ -259,7 +259,9 @@ cycle on; `BusMonitor` and the trace show the outputs as sent.
 
 Each `Device` remembers which output bits it wrote. When the script ends,
 they are set back to 0, so a program's commands do not outlive it (a drive
-gets controlword 0 and disables). Covered: normal end, `sys.exit()`, an
+gets controlword 0 and disables; its target position and position offset
+keep their last value, so a drive still enabled in that cycle does not take
+0 as a setpoint). Covered: normal end, `sys.exit()`, an
 uncaught exception, Ctrl+C, SIGTERM (`kill`, `systemctl stop`) and SIGHUP
 (terminal closed). For the last two the library installs signal handlers
 that end the script normally, unless the script installed its own.

@@ -32,7 +32,8 @@ Copy this file into a project (or reference it from its `AGENTS.md` /
    values only).
 3. **Outputs and exit.** When a script ends normally (also by exception,
    Ctrl+C, SIGTERM, SIGHUP) every output bit its devices wrote goes back to 0
-   (`dev.keep_outputs_on_exit()` opts out). After `kill -9`, a crash or a hang
+   (`dev.keep_outputs_on_exit()` opts out), except a drive's target position
+   and position offset, which keep their last value. After `kill -9`, a crash or a hang
    the engine keeps sending the last values. Put devices in a safe state in
    `finally` where it matters.
 4. **Engine restarts require new objects.** `Bus` and `Device` do not reconnect.

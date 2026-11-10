@@ -55,6 +55,12 @@ static void shutdown_engine(const rt_loop_t *rt) {
 }
 
 int main(int argc, char *argv[]) {
+    /* Each line out when written, also to a file or a pipe (nohup, the
+     * systemd journal): the C library would otherwise hold stdout in a
+     * block buffer until it fills or the engine exits, and lose it in a
+     * crash. stderr is unbuffered already. */
+    setvbuf(stdout, NULL, _IOLBF, 0);
+
     /* First, before anything is created: see install_signal_handlers() */
     install_signal_handlers();
 

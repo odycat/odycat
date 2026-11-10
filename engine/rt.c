@@ -268,22 +268,37 @@ static void rt_count_cycle(rt_loop_t *rt, uint64_t cycle) {
     }
 }
 
-/* Say why a slave left OP, when the cause is almost certainly a late
- * cycle. Printing here is fine: without SCHED_FIFO this loop is not
- * real-time anyway. */
-static void explain_slave_lost(const rt_loop_t *rt, const slave_cfg_t *s) {
+/* A DC slave left OP while the engine runs without real-time scheduling:
+ * say whether late cycles can explain it, from what the engine saw. A
+ * cable, the slave's power or the slave itself drop it too, so late cycles
+ * are blamed only when a recent cycle was longer than a Sync0 period.
+ * Printing here is fine: without SCHED_FIFO this loop is not real-time
+ * anyway. */
+static void explain_slave_lost(const rt_loop_t *rt, const slave_cfg_t *s, bool online) {
     if (!s->dc_enabled || (rt->rt_flags & ODYCAT_RT_SCHED_FIFO))
         return;
     uint64_t longest = rt->win_max_ns > rt->prev_win_max_ns
                      ? rt->win_max_ns : rt->prev_win_max_ns;
-    fprintf(stderr, "WARNING: slave %u:%d (%s) left OP. It uses DC "
-            "(Sync0 %u us) and the engine runs without real-time "
-            "scheduling; the longest recent cycle took %.1f ms, which "
-            "can leave a Sync0 period without data. Run the engine with "
-            "real-time scheduling (sudo, or CAP_SYS_NICE), or remove "
-            "\"dc_sync\" from this slave if it is not required.\n",
-            s->alias, s->position, s->label, sync0_cycle_ns(s, rt->cfg->cycle_us) / 1000u,
-            longest / 1e6);
+    uint32_t sync0_ns = sync0_cycle_ns(s, rt->cfg->cycle_us);
+    if (!online)
+        fprintf(stderr, "WARNING: slave %u:%d (%s) left OP and does not answer "
+                "on the bus: check its cable and power supply.\n",
+                s->alias, s->position, s->label);
+    else if (longest > sync0_ns)
+        fprintf(stderr, "WARNING: slave %u:%d (%s) left OP. It uses DC "
+                "(Sync0 %u us) and the engine runs without real-time "
+                "scheduling; the longest recent cycle took %.1f ms, which may "
+                "have left a Sync0 period without data. If it happens again, "
+                "run the engine with real-time scheduling (sudo, or "
+                "CAP_SYS_NICE), or remove \"dc_sync\" from this slave if it "
+                "is not required.\n",
+                s->alias, s->position, s->label, sync0_ns / 1000u, longest / 1e6);
+    else
+        fprintf(stderr, "WARNING: slave %u:%d (%s) left OP. The recent cycles "
+                "were on time (longest %.1f ms, Sync0 %u us), so late cycles "
+                "do not explain it: its AL status code says why (BusMonitor, "
+                "or al_code of the DeviceLostError in scripts).\n",
+                s->alias, s->position, s->label, longest / 1e6, sync0_ns / 1000u);
 }
 
 static void refresh_slave_status(rt_loop_t *rt, int i, uint64_t cycle) {
@@ -333,7 +348,7 @@ static void refresh_slave_status(rt_loop_t *rt, int i, uint64_t cycle) {
     rt->not_op_count++;
     trace_event(cycle, TRACE_EV_SLAVE_LOST, (uint16_t)i,
                 ss.al_state | (uint32_t)ss.online << 8);
-    explain_slave_lost(rt, s);
+    explain_slave_lost(rt, s, ss.online);
     /* Left OP: every output buffer written before is now stale, so the
      * slave gets zeros until a script writes again (send_slave_outputs) */
     st->drop_count++;

@@ -347,7 +347,8 @@ See [testing.md](testing.md) for what the tests cover and what CI runs.
 
 - **Outputs a script wrote go back to 0 when it ends** (normal end, uncaught
   exception, Ctrl+C, SIGTERM, SIGHUP), unless it called
-  `keep_outputs_on_exit()`; a drive gets controlword 0 and disables. See
+  `keep_outputs_on_exit()`; a drive gets controlword 0 and disables (its
+  target position keeps its last value). See
   [python-api.md](python-api.md#outputs-when-the-script-ends).
 - **Outputs keep their last value when the script cannot run that cleanup:**
   `kill -9`, an out-of-memory kill, a crash, `os._exit()`, or a script that

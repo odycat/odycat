@@ -2,8 +2,8 @@
 # Copyright (c) 2026 Ocean Octane S.L.U.
 # Release: a tag vX.Y.Z builds, checks and publishes that version.
 #
-#   check     the tag matches the version; CHANGELOG entry dated; support
-#             period of at least five years (SUPPORT_END, SECURITY.md)
+#   check     the tag matches the version; CHANGELOG entry dated; the
+#             support end of its major version (SUPPORT_END, SECURITY.md)
 #   source    sdist, the pure-Python wheel, the full source tarball (engine
 #             included) and the installer (install/ with packaging/)
 #   engine    the engine binary per architecture, built on the oldest

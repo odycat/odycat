@@ -597,9 +597,16 @@ class Device:
         if the slave is out of OP the engine sends zeros anyway)."""
         if self._mm is None or self._keep_on_exit or not any(self._written):
             return
-        _publish_group([(self, bytes(self._rx_size), bytes(self._written))],
-                       check_link=False)
+        mask = self._release_mask()
+        if any(mask):
+            _publish_group([(self, bytes(self._rx_size), mask)], check_link=False)
         self._written = bytearray(self._rx_size)
+
+    def _release_mask(self) -> bytes:
+        """The output bits _release_outputs() sets back to 0: by default
+        every bit this object wrote. A subclass leaves out outputs where 0
+        may not be a safe value."""
+        return bytes(self._written)
 
     def keep_outputs_on_exit(self, keep: bool = True) -> None:
         """Leave this device's outputs as they are when the script ends

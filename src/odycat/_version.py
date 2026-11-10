@@ -5,7 +5,7 @@
 build (engine/Makefile, compiled into the binary) and the docs read it from
 here; a release tag (v<version>) must match it."""
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 # End of the support period of this release, as YYYYMM (0 = not set):
 # security fixes, within the major version, until at least then. Set when

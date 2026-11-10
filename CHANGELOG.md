@@ -4,6 +4,29 @@ All notable changes to OdyCAT. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-11-10
+
+### Fixed
+
+- When a script ends, a CiA 402 drive's target position and position offset
+  (0x607A, 0x60B0) keep their last value instead of going back to 0. They
+  went out in the same frame as controlword 0, so a drive still enabled in
+  that cycle could take 0 as a new position setpoint (a fault, or a move
+  towards position 0). The other outputs still go back to 0 and the drive
+  disables.
+- The engine's messages reach a file or the systemd journal as they are
+  written; redirected, they were held until the engine stopped.
+- The engine's warning when a DC slave leaves OP without real-time
+  scheduling blames late cycles only when a recent cycle was longer than a
+  Sync0 period; a slave that no longer answers is reported as a cable or
+  power problem, and one that left OP with cycles on time points to its AL
+  status code.
+
+### Changed
+
+- The package summary on PyPI: "Open machine and factory automation with
+  Python: EtherCAT on Linux".
+
 ## [1.0.0] - 2026-11-09
 
 First public release. OdyCAT drives an EtherCAT bus from Python on Linux:

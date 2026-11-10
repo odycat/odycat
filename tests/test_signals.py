@@ -148,6 +148,46 @@ class ReadTests(unittest.TestCase):
             self.assertIn("0x6077", str(cm.exception))
             drv.close()
 
+    def test_drive_release_keeps_the_position_setpoint(self):
+        """At the end of a script a drive gets controlword 0 and its other
+        outputs 0, but not target position 0: it would go out in the same
+        frame as the controlword, to a drive maybe still enabled."""
+        with fake_engine(box(("ECT60", "drv")), IF) as eng:
+            drv = ECT60(label="drv", bus=IF)
+            drv.set_controlword(0x000F)
+            drv.write_object(0x6060, 8)
+            drv.set_target_position(-123456)
+            drv.set_target_velocity(300)
+            drv.set_out1(True)
+            drv.close()
+            self.assertEqual(struct.unpack("<HbiiI", eng.read_outputs("drv")),
+                             (0, 0, -123456, 0, 0))
+
+    def test_multi_axis_release_keeps_position_and_offset(self):
+        from odycat.devices.cia402 import Servo
+        rx = [(0x6040, "u16", "cw"), (0x607A, "i32", "pos"), (0x60B0, "i32", "pos_off"),
+              (0x60B1, "i32", "vel_off"), (0x6840, "u16", "cw2"), (0x687A, "i32", "pos2")]
+        sl = {"alias": 0, "position": 0, "name": "TWO-AXIS", "label": "drv",
+              "vendor_id": "0x00001111", "product_code": "0x00003333", "sdos": [],
+              "txpdo": {"index": "0x1A00", "entries": [
+                  {"index": "0x6041", "subindex": 0, "type": "u16", "label": "sw"}]},
+              "rxpdo": {"index": "0x1600", "entries": [
+                  {"index": hex(i), "subindex": 0, "type": t, "label": n} for i, t, n in rx]}}
+        with fake_engine(mini_config(sl, bus=IF), IF) as eng:
+            ax1, ax2 = Servo(label="drv", bus=IF), Servo(label="drv", bus=IF, axis=1)
+            ax1.set_controlword(0x000F)
+            ax1.set_target_position(1000)
+            ax1.set_position_offset(-50)
+            ax1.write_object(0x60B1, 7)
+            ax2.set_controlword(0x000F)
+            ax2.set_target_position(2000)
+            ax1.close()
+            self.assertEqual(struct.unpack("<HiiiHi", eng.read_outputs("drv")),
+                             (0, 1000, -50, 0, 0x000F, 2000))
+            ax2.close()
+            self.assertEqual(struct.unpack("<HiiiHi", eng.read_outputs("drv")),
+                             (0, 1000, -50, 0, 0, 2000))
+
     def test_signals_find_objects_whatever_the_labels(self):
         """A config written from the bus (--no-profiles) names entries
         differently; signals go by object index."""

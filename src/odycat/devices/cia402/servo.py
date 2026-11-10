@@ -40,7 +40,7 @@ from __future__ import annotations
 import time
 from typing import Optional
 
-from odycat._config import read_config, slave_config
+from odycat._config import _entry_struct, read_config, slave_config
 from odycat._profiles import dc_sync_settings
 from odycat.device import Device, ObjectNotMappedError
 from odycat.signal import signal
@@ -372,6 +372,26 @@ class Servo(Device):
     def disable(self) -> None:
         """Shutdown (power stage off, Ready-to-Switch-On)."""
         self.set_controlword(0x0006)
+
+    def _release_mask(self) -> bytes:
+        """At the end of the script the outputs go back to 0 (controlword 0:
+        the drive disables) except the target position and the position
+        offset (0x607A, 0x60B0, every axis): they reach the drive in the
+        same frame as the controlword, and a drive still enabled in that
+        cycle would take 0 as a new position setpoint. They keep their last
+        value; enable() sets the target to the actual position again."""
+        mask = bytearray(self._written)
+        _, outputs = self.entries()
+        for e in outputs:
+            index = int(e["index"], 16)
+            if not 0x6000 <= index < 0xA000 or (index & (AXIS_OFFSET - 1)) not in (
+                    TARGET_POSITION & 0x7FF, POSITION_OFFSET & 0x7FF):
+                continue
+            st = _entry_struct(e)
+            bit = e["bit_offset"] - self._tx_size * 8
+            for b in range(bit, bit + (st.size * 8 if st is not None else e["bits"])):
+                mask[b // 8] &= ~(1 << (b % 8)) & 0xFF
+        return bytes(mask)
 
     def quick_stop(self) -> None:
         """Quick stop: the drive decelerates with 0x6085, then disables."""
