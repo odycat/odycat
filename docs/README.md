@@ -82,7 +82,8 @@ ci/                    The scripts the CI runs (lint, tests, builds); they work 
   slave's side, as in ESI files, TwinCAT and `ethercat pdos`: `rxpdo` is what
   the slave *receives* (its **outputs**: control, targets; RxPDOs `0x16xx`,
   SM2) and `txpdo` is what it *transmits* (its **inputs**: status, actual
-  values; TxPDOs `0x1Axx`, SM3).
+  values; TxPDOs `0x1Axx`, SM3; slaves without a mailbox use SM0/SM1,
+  given by `"sm"`).
 - Slave addresses are written `alias:position`, as `ethercat slaves` prints
   them.
 

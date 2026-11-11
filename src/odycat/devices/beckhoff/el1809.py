@@ -26,14 +26,15 @@ class EL1809(Device):
     """
 
     # One TxPDO per channel (0x1A00..0x1A0F -> 0x6000:01, 0x6010:01, ...),
-    # packed by the engine into 2 bytes: bit n-1 = channel n.
+    # all in SM0 (the terminal has no mailbox), packed by the engine into
+    # 2 bytes: bit n-1 = channel n.
     SUPPORT = "community"
 
     PROFILE = {
         "vendor_id": "0x00000002",
         "product_code": "0x07113052",
         "rxpdo": {"entries": []},
-        "txpdo": [{"index": f"0x{0x1A00 + n:04X}", "entries": [
+        "txpdo": [{"index": f"0x{0x1A00 + n:04X}", "sm": 0, "entries": [
                       {"index": f"0x{0x6000 + 0x10 * n:04X}", "subindex": 1,
                        "bits": 1, "label": f"input_{n + 1}"}]} for n in range(16)],
     }

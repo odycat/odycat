@@ -27,14 +27,16 @@ class EL2809(Device):
     Without (), card.output_1 is the variable itself, for odycat.Events.
     """
 
-    # One RxPDO per channel (0x1600..0x160F -> 0x7000:01, 0x7010:01, ...),
-    # packed by the engine into 2 bytes: bit n-1 = channel n.
+    # One RxPDO per channel (0x1600..0x160F -> 0x7000:01, 0x7010:01, ...).
+    # The terminal has no mailbox and a sync manager per byte: channels
+    # 1-8 in SM0, 9-16 in SM1. Packed by the engine into 2 bytes: bit n-1 =
+    # channel n.
     SUPPORT = "community"
 
     PROFILE = {
         "vendor_id": "0x00000002",
         "product_code": "0x0AF93052",
-        "rxpdo": [{"index": f"0x{0x1600 + n:04X}", "entries": [
+        "rxpdo": [{"index": f"0x{0x1600 + n:04X}", "sm": n // 8, "entries": [
                       {"index": f"0x{0x7000 + 0x10 * n:04X}", "subindex": 1,
                        "bits": 1, "label": f"output_{n + 1}"}]} for n in range(16)],
         "txpdo": {"entries": []},

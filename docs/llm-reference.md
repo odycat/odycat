@@ -239,6 +239,8 @@ analog 0x6401/0x6411 by subindex): `input(n)`, `inputs()`, `output(n)`,
 | `ECT60` | Leadshine stepper, `Servo` subclass, no torque modes | IN/OUT 1..16 | `digital_inputs()` (bit0 −limit, bit1 +limit, bit2 home), `negative_limit_switch()`, `positive_limit_switch()`, `home_switch()`, `input(n)`, `output(n)`, `set_output(n, s)` |
 | `EL2809` | Beckhoff 16 DO | 1..16 | digital outputs |
 | `EL1809` | Beckhoff 16 DI | 1..16 | digital inputs |
+| `EL2004`, `ES2004` | Beckhoff 4 DO | 1..4 | digital outputs |
+| `EL1014`, `ES1014` | Beckhoff 4 DI | 1..4 | digital inputs |
 | `EC3A_IO1632` | AMSA 16 DI + 16 DO | 0..15 | digital inputs and outputs |
 | `AX516AM` | Delta 16 DI | 0..15 | digital inputs |
 | `AX516AN` | Delta 16 DO | 0..15 | digital outputs |
@@ -322,6 +324,9 @@ Any other slave is written in full:
 Entry types: `bool u8 i8 u16 i16 u32 i32 u64 i64 f32 f64` (`"type"`, also for
 SDOs), or `"bits": N` for bit fields; `"index": "0x0000"` = gap. `txpdo`/`rxpdo` are one PDO object or a
 list of them (several PDOs per direction). All entries of a direction must total whole bytes.
+A PDO's `"sm"` is its sync manager (default 2 for `rxpdo`, 3 for `txpdo`); slaves without a
+mailbox use SM0/SM1, as `ethercat pdos` shows and `odycat-config scan` writes. The PDOs of one
+sync manager follow each other and fill whole bytes.
 Limits: 512 slaves, 32 PDOs and 256 entries per direction, 32 SDOs per slave,
 `cycle_us` one of 125, 250, 500, 1000, 2000, 4000, 8000, 10000. SDO values
 must fit their type (no truncation); hex strings (`"0x00FF"`) are accepted.

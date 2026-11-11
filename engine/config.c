@@ -275,12 +275,16 @@ static char *read_file_to_string(const char *path) {
 typedef struct {
     const char *key, *kind;
     uint16_t    lo, hi;
+    uint8_t     sm;         /* default sync manager */
 } pdo_dir_spec_t;
 
-static const pdo_dir_spec_t RXPDO_SPEC = {"rxpdo", "an RxPDO", 0x1600, 0x17FF};
-static const pdo_dir_spec_t TXPDO_SPEC = {"txpdo", "a TxPDO",  0x1A00, 0x1BFF};
+static const pdo_dir_spec_t RXPDO_SPEC = {"rxpdo", "an RxPDO", 0x1600, 0x17FF, 2};
+static const pdo_dir_spec_t TXPDO_SPEC = {"txpdo", "a TxPDO",  0x1A00, 0x1BFF, 3};
 
-/* Parse one PDO object ({"index", "entries"}) and append it to
+/* Sync managers a slave can have (IgH's EC_MAX_SYNC_MANAGERS) */
+#define MAX_SYNC_MANAGERS 16
+
+/* Parse one PDO object ({"index", "sm", "entries"}) and append it to
  * a direction. A PDO without entries is not assigned. */
 static void parse_pdo(cJSON *blk, const char *name, const pdo_dir_spec_t *spec,
                       const slave_cfg_t *s, pdo_dir_t *dir) {
@@ -304,8 +308,32 @@ static void parse_pdo(cJSON *blk, const char *name, const pdo_dir_spec_t *spec,
         die("slave %d (%s): too many PDO entries in one direction (max %d)",
             s->position, s->label, MAX_PDO_ENTRIES);
 
+    int64_t v = spec->sm;
+    cJSON *jsm = cJSON_GetObjectItem(blk, "sm");
+    if (jsm && !json_int(jsm, 0, MAX_SYNC_MANAGERS - 1, &v))
+        die("slave %d (%s): %s 'sm' must be a sync manager number, 0..%d",
+            s->position, s->label, name, MAX_SYNC_MANAGERS - 1);
+    /* A new sync manager: the ones before it hold whole bytes, and each
+     * sync manager's PDOs follow each other */
+    if (dir->pdo_count > 0 && dir->pdos[dir->pdo_count - 1].sm != v) {
+        int prev = dir->pdos[dir->pdo_count - 1].sm, bits = 0;
+        for (int p = 0; p < dir->pdo_count; p++)
+            if (dir->pdos[p].sm == v)
+                die("slave %d (%s): %s is in SM%d, after PDOs of SM%d: the PDOs of "
+                    "one sync manager follow each other",
+                    s->position, s->label, name, (int)v, prev);
+        for (int e = 0; e < dir->entry_count; e++)
+            bits += dir->entries[e].bits;
+        if (bits % 8)
+            die("slave %d (%s): %s starts SM%d, but the PDOs of SM%d before it end "
+                "%d bit(s) into a byte. Each sync manager holds whole bytes: add a gap "
+                "entry {\"index\":\"0x0000\",\"subindex\":0,\"bits\":%d} at the end of "
+                "SM%d's last PDO.", s->position, s->label, name, (int)v, prev,
+                bits % 8, 8 - bits % 8, prev);
+    }
+
     pdo_cfg_t *pdo = &dir->pdos[dir->pdo_count++];
-    int64_t v;
+    pdo->sm = (uint8_t)v;
     if (!json_int(j, spec->lo, spec->hi, &v))
         die("slave %d (%s): %s index \"%s\" is not %s (0x%04X-0x%04X). "
             "\"rxpdo\" holds the slave's RxPDOs (outputs, 0x16xx), "
@@ -371,6 +399,7 @@ static void parse_pdo_dir(cJSON *sl, const pdo_dir_spec_t *spec,
     char name[32];
     cJSON *blk = cJSON_GetObjectItem(sl, key);
     if (!blk) die("slave %d (%s): config missing field '%s'", s->position, s->label, key);
+    dir->sm = spec->sm;
     if (cJSON_IsArray(blk)) {
         int n = cJSON_GetArraySize(blk);
         for (int p = 0; p < n; p++) {
@@ -498,6 +527,12 @@ void config_load(odycat_config_t *cfg, const char *path) {
          * one PDO or a list. */
         parse_pdo_dir(sl, &TXPDO_SPEC, s, &s->tx);
         parse_pdo_dir(sl, &RXPDO_SPEC, s, &s->rx);
+        for (int p = 0; p < s->tx.pdo_count; p++)
+            for (int q = 0; q < s->rx.pdo_count; q++)
+                if (s->tx.pdos[p].sm == s->rx.pdos[q].sm)
+                    die("slave %d (%s): txpdo and rxpdo are both in SM%d: inputs and "
+                        "outputs need sync managers of their own",
+                        s->position, s->label, s->tx.pdos[p].sm);
 
         j = cJSON_GetObjectItem(sl, "sync_group");
         if (j && !cJSON_IsNull(j)) {

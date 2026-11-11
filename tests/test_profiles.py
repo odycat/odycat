@@ -116,13 +116,16 @@ class BundledProfileTests(unittest.TestCase):
     def test_every_bundled_class_with_a_fixed_layout_has_a_profile(self):
         self.assertEqual(set(_profiles.device_classes()),
                          {"leadshine.ECT60", "beckhoff.EL2809",
-                          "beckhoff.EL1809", "amsamotion.EC3A_IO1632", "delta.AX516AM",
-                          "delta.AX516AN"})
+                          "beckhoff.EL1809", "beckhoff.EL1014", "beckhoff.EL2004",
+                          "beckhoff.ES1014", "beckhoff.ES2004",
+                          "amsamotion.EC3A_IO1632", "delta.AX516AM", "delta.AX516AN"})
 
     def test_fixed_format_classes_fit_their_profile(self):
         fixed = {  # class: (input bytes, output bytes) the class unpacks
             "amsamotion.EC3A_IO1632": (2, 2),
             "beckhoff.EL2809": (0, 2), "beckhoff.EL1809": (2, 0),
+            "beckhoff.EL2004": (0, 1), "beckhoff.EL1014": (1, 0),
+            "beckhoff.ES2004": (0, 1), "beckhoff.ES1014": (1, 0),
             "delta.AX516AM": (2, 0), "delta.AX516AN": (0, 2),
         }
         for name, sizes in fixed.items():

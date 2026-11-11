@@ -96,8 +96,8 @@ PDO names follow EtherCAT, seen from the slave, as in the ESI file and in
 
 | Key | Slave PDOs | Direction | Holds |
 |---|---|---|---|
-| `rxpdo` | RxPDOs `0x1600`–`0x17FF` (SM2) | master → slave | **Outputs**: controlword, targets, digital outputs |
-| `txpdo` | TxPDOs `0x1A00`–`0x1BFF` (SM3) | slave → master | **Inputs**: statusword, actual values, digital inputs |
+| `rxpdo` | RxPDOs `0x1600`–`0x17FF` (SM2 by default) | master → slave | **Outputs**: controlword, targets, digital outputs |
+| `txpdo` | TxPDOs `0x1A00`–`0x1BFF` (SM3 by default) | slave → master | **Inputs**: statusword, actual values, digital inputs |
 
 A PDO index outside its range (e.g. `0x1A00` under `rxpdo`) stops the engine
 at startup.
@@ -133,10 +133,13 @@ PDO fields:
 | Field | Meaning |
 |---|---|
 | `index` | Slave PDO index (hex string), required when the PDO has entries. Inputs use the slave's TxPDOs (`0x1A00`–`0x1BFF`, under `txpdo`), outputs its RxPDOs (`0x1600`–`0x17FF`, under `rxpdo`) |
+| `sm` | Sync manager the PDO is assigned to: 2 (`rxpdo`) and 3 (`txpdo`) when not given. Slaves without a mailbox (simple I/O terminals) carry their process data in SM0 and SM1, some a direction over both (a byte each): `ethercat pdos` shows which. The PDOs of one sync manager follow each other and fill whole bytes (a gap entry completes the last one); inputs and outputs never share a sync manager |
 | `entries` | Mapped objects, in the order the slave sends them |
 
-OdyCAT assigns exactly the PDOs that have entries to the sync managers (SM2
-outputs, SM3 inputs), in config order, and writes their mapping. PDOs without
+OdyCAT assigns exactly the PDOs that have entries to their sync manager (SM2
+outputs, SM3 inputs unless `sm` says otherwise), in config order, and writes
+their mapping. A sync manager the slave does not have for that direction
+stops the engine at startup, naming the one where the slave has the PDO. PDOs without
 entries are not assigned. The slave must accept that assignment and
 mapping: fixed-mapping slaves need the PDOs and entries exactly as their ESI /
 `ethercat pdos` shows; slaves with configurable mapping accept any objects
@@ -184,6 +187,21 @@ Rules:
   Device classes based on `entries` (like `Servo`) find objects by index, so
   for them the order is free; classes with a fixed `struct` format need the
   exact order documented in the class.
+
+A digital terminal without a mailbox, one 1-bit PDO per channel in SM0, with
+a gap to the end of the byte:
+
+```json
+"txpdo": [
+  { "index": "0x1A00", "sm": 0, "entries": [
+    { "index": "0x6000", "subindex": 1, "bits": 1, "label": "di0" } ] },
+  ...
+  { "index": "0x1A03", "sm": 0, "entries": [
+    { "index": "0x6030", "subindex": 1, "bits": 1, "label": "di3" },
+    { "index": "0x0000", "subindex": 0, "bits": 4 } ] }
+],
+"rxpdo": { "entries": [] }
+```
 
 1-bit channels split over two PDOs (Delta AX-516AM):
 
@@ -415,11 +433,12 @@ The config is written out in full, as the engine binary needs it:
   slaves are then read from the bus like any other, with the entry names the
   slave reports.
 - Any other slave is written in full with the PDOs it has assigned now to SM2
-  (outputs) and SM3 (inputs). Entry types and names come from its CoE object
+  (outputs) and SM3 (inputs), or to the other sync managers it uses (SM0/SM1
+  on slaves without a mailbox, written as `"sm"`). A sync manager whose
+  entries end inside a byte gets a gap to the end of it. Entry types and names come from its CoE object
   dictionary, then from the standard CiA 402 drive objects (`statusword`,
   `position_actual_value`, ...); an entry with neither gets the unsigned type of
-  its size and the report says so. PDOs in other sync managers are left out,
-  with a note.
+  its size and the report says so.
 - `bus` is `bus<master>`, e.g. `bus0` (`--bus NAME` for another;
   `--master N` scans another IgH master and writes `"master": N`);
   `cycle_us` is 1000 (`--cycle-us` for another).

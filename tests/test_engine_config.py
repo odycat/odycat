@@ -120,6 +120,56 @@ class EngineConfig(unittest.TestCase):
         cfg["slaves"][0]["txpdo"]["index"] = "0x1Azz"
         self.refused(cfg, "txpdo index")
 
+    def sms(self, cfg, key="txpdo"):
+        return [p["sm"] for p in self.parsed(cfg)["slaves"][0][key]["pdos"]]
+
+    def test_sync_managers(self):
+        self.assertEqual((self.sms(BASE), self.sms(BASE, "rxpdo")), ([3], [2]))   # defaults
+        # No mailbox: outputs in SM0, inputs in SM1 (a number or a string)
+        cfg = copy.deepcopy(BASE)
+        cfg["slaves"][0]["rxpdo"]["sm"] = 0
+        cfg["slaves"][0]["txpdo"]["sm"] = "1"
+        self.assertEqual((self.sms(cfg), self.sms(cfg, "rxpdo")), ([1], [0]))
+        for bad in (16, -1, "x", 1.5):
+            cfg = copy.deepcopy(BASE)
+            cfg["slaves"][0]["txpdo"]["sm"] = bad
+            self.refused(cfg, "txpdo 'sm'")
+        cfg = copy.deepcopy(BASE)
+        cfg["slaves"][0]["txpdo"]["sm"] = 2
+        self.refused(cfg, "txpdo and rxpdo are both in SM2")
+        # An empty direction does not hold its default sync manager
+        cfg["slaves"][0]["rxpdo"] = {"entries": []}
+        self.assertEqual(self.sms(cfg), [2])
+
+    def channels(self, sms):
+        """Outputs of one bit per channel, channel n in sms[n]."""
+        cfg = copy.deepcopy(BASE)
+        cfg["slaves"][0]["txpdo"] = {"entries": []}
+        cfg["slaves"][0]["rxpdo"] = [
+            {"index": f"0x{0x1600 + n:04X}", "sm": sm, "entries": [
+                {"index": f"0x{0x7000 + 0x10 * n:04X}", "subindex": 1, "bits": 1}]}
+            for n, sm in enumerate(sms)]
+        return cfg
+
+    def test_a_direction_over_two_sync_managers(self):
+        # 16 outputs, a byte in SM0 and a byte in SM1
+        cfg = self.channels([0] * 8 + [1] * 8)
+        self.assertEqual(self.sms(cfg, "rxpdo"), [0] * 8 + [1] * 8)
+        self.assertEqual(self.parsed(cfg)["slaves"][0]["rxpdo"]["size"], 2)
+
+    def test_each_sync_manager_holds_whole_bytes(self):
+        self.refused(self.channels([0] * 4 + [1] * 12),
+                     "rxpdo[4] starts SM1, but the PDOs of SM0 before it end 4 bit(s) "
+                     "into a byte", '"bits":4')
+
+    def test_the_pdos_of_a_sync_manager_follow_each_other(self):
+        self.refused(self.channels([0] * 8 + [1] * 8 + [0] * 8),
+                     "rxpdo[16] is in SM0, after PDOs of SM1")
+        # A PDO without entries is not assigned: its "sm" does not count
+        cfg = self.channels([0] * 8 + [1] * 8)
+        cfg["slaves"][0]["rxpdo"].append({"index": "0x1610", "sm": 0, "entries": []})
+        self.assertEqual(self.sms(cfg, "rxpdo"), [0] * 8 + [1] * 8)
+
     def test_entry_fields(self):
         self.refused(self.entry(index="0x60zz"), "'index'")
         self.refused(self.entry(index=0x10000), "'index'")

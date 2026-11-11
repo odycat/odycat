@@ -1,0 +1,27 @@
+=== Master 0, Slave 1 ===
+Device: Main
+State: PREOP
+Flag: +
+Identity:
+  Vendor Id:       0x00000002
+  Product code:    0x03f63052
+  Revision number: 0x00130000
+  Serial number:   0x00000000
+DL information:
+  FMMU bit operation: no
+  Distributed clocks: yes, delay measurement only
+  DC system time transmission delay: 145 ns
+Port  Type  Link  Loop    Signal  NextSlave  RxTime [ns]  Diff [ns]   NextDc [ns]
+   0  EBUS  up    open    yes             0   1382284466           0         145
+   1  EBUS  up    open    yes             2   1382286756        2290         140
+   2  N/A   down  closed  no              -            -           -           -
+   3  N/C   down  closed  no              -            -           -           -
+General:
+  Group: DigIn
+  Image name: TERM_DI
+  Order number: EL1014
+  Device name: EL1014 4K. Dig. Eingang 24V, 10µs
+  Flags:
+    Enable SafeOp: no
+    Enable notLRW: no
+  Current consumption: 90 mA

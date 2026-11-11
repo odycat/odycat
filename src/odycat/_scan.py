@@ -22,8 +22,10 @@ For each slave, in order of preference:
      SDOs, written out; with --short only {"device": "leadshine.ECT60",
      "alias": 60, "position": 0, "label": ...}, which the `odycat`
      command fills in at startup but the engine binary alone does not accept;
-  2. otherwise the slave in full, with the PDOs it has assigned now to SM2
-     (outputs) and SM3 (inputs), the only sync managers the engine maps.
+  2. otherwise the slave in full, with the PDOs it has assigned now to its
+     sync managers: SM2 (outputs) and SM3 (inputs), or others written as
+     "sm" (SM0/SM1 on slaves without a mailbox). A sync manager whose
+     entries end inside a byte gets a gap to the end of it.
      Entry types and names come from the slave's CoE object dictionary,
      then from the standard CiA 402 drive objects; an entry with neither
      gets an unsigned encoding of its size, and the report says so.
@@ -313,20 +315,18 @@ def _full_slave(slave: BusSlave, entry: dict, notes: list) -> dict:
     used: set = set()
     guessed = 0
     drive = False
-    for key, direction, sm, lo, hi in _DIRECTIONS:
+    for key, direction, default_sm, lo, hi in _DIRECTIONS:
         pdos = []
         bits = 0
-        for pdo in dev.pdos:
-            if pdo.direction != direction or pdo.sm is None:
-                continue
-            if pdo.sm != sm:
-                notes.append(f"PDO 0x{pdo.index:04X} is in SM{pdo.sm}; the engine maps "
-                             f"{'outputs to SM2' if sm == 2 else 'inputs to SM3'} only: "
-                             f"left out")
-                continue
+        # Each sync manager's PDOs together, in sync manager order (slaves
+        # without a mailbox use SM0/SM1, some a byte per sync manager)
+        assigned = sorted(dev.assigned(direction), key=lambda pdo: pdo.sm)
+        for pdo in assigned:
             if not lo <= pdo.index <= hi:
                 notes.append(f"PDO 0x{pdo.index:04X} is outside 0x{lo:04X}-0x{hi:04X}: left out")
                 continue
+            if pdos and pdos[-1].get("sm", default_sm) != pdo.sm:
+                bits = _fill_byte(pdos[-1], bits)
             ents = []
             for e in pdo.entries:
                 ent, g, cia = _entry(e, slave, used)
@@ -334,10 +334,10 @@ def _full_slave(slave: BusSlave, entry: dict, notes: list) -> dict:
                 guessed += g
                 drive = drive or cia
                 bits += e.bits
-            pdos.append({"index": f"0x{pdo.index:04X}", "entries": ents})
-        if bits % 8:
-            notes.append(f"{key} entries end {bits % 8} bit(s) short of a byte boundary: "
-                         f"the engine will refuse it")
+            pdos.append({"index": f"0x{pdo.index:04X}",
+                         **({"sm": pdo.sm} if pdo.sm != default_sm else {}), "entries": ents})
+        if pdos:
+            _fill_byte(pdos[-1], bits)
         entry[key] = pdos[0] if len(pdos) == 1 else (pdos or {"entries": []})
     if guessed:
         notes.append(f"{guessed} entr{'y' if guessed == 1 else 'ies'} typed by size only "
@@ -355,6 +355,14 @@ def _full_slave(slave: BusSlave, entry: dict, notes: list) -> dict:
                                              else "single-mode"))
     _dc(slave, entry, notes, drive)
     return entry
+
+
+def _fill_byte(pdo: dict, bits: int) -> int:
+    """A sync manager holds whole bytes: a gap at the end of its last PDO
+    fills the byte its entries end in. Returns the bits, rounded up."""
+    if bits % 8:
+        pdo["entries"].append({"index": "0x0000", "subindex": 0, "bits": 8 - bits % 8})
+    return bits + (-bits % 8)
 
 
 def _pdo_list(side) -> list:

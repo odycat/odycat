@@ -58,7 +58,8 @@ the shared memory. Consequences:
    addresses to ring positions. Any configured slave missing or with a
    different vendor/product code is fatal.
 5. Per slave: `ecrt_master_slave_config`, PDO assignment
-   (`ecrt_slave_config_pdos`, SM2 = outputs, SM3 = inputs), queue startup
+   (`ecrt_slave_config_pdos`, SM2 = outputs, SM3 = inputs unless the PDOs'
+   `sm` names others, checked against the slave's sync managers), queue startup
    SDOs (`ecrt_slave_config_sdo8/16/32`, sent by IgH in PREOP), optional DC
    (`ecrt_slave_config_dc`), register PDO entries in one domain. Slaves
    without DC first get free-run SDOs, when `ecrt_master_sdo_upload` of

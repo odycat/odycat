@@ -51,21 +51,26 @@ typedef struct {
 } copy_chunk_t;
 
 /* ------------------------------------------------------------------ */
-/*  PDOs of one direction (inputs = SM3, outputs = SM2)                */
+/*  PDOs of one direction. Each PDO names its sync manager (default:   */
+/*  inputs SM3, outputs SM2; slaves without a mailbox use SM0/SM1, and */
+/*  some spread a direction over two); the PDOs of one sync manager    */
+/*  follow each other and fill whole bytes.                            */
 /*  The entries of all PDOs sit in one array, in wire order; each PDO  */
-/*  names its slice. Byte alignment applies to the whole direction, so */
-/*  PDOs of 1 bit each (one per digital channel) are valid.            */
+/*  names its slice. Byte alignment applies per sync manager, so PDOs  */
+/*  of 1 bit each (one per digital channel) are valid.                 */
 /* ------------------------------------------------------------------ */
 
 typedef struct {
     uint16_t index;
     int      first;       /* into pdo_dir_t.entries */
     int      count;
+    uint8_t  sm;          /* sync manager the PDO is assigned to */
 } pdo_cfg_t;
 
 typedef struct {
     pdo_cfg_t       pdos[MAX_PDOS_PER_DIR];
     int             pdo_count;
+    uint8_t         sm;            /* the direction's default sync manager */
     pdo_entry_cfg_t entries[MAX_PDO_ENTRIES];
     int             entry_count;
     int             size;          /* SHM bytes */

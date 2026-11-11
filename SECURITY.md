@@ -14,7 +14,7 @@ version, until the end of the month shown.
 
 | Version | Security fixes until |
 |---|---|
-| 1.0.x (latest) | 2031-11 |
+| 1.1.x (latest) | 2031-11 |
 
 ## Manufacturer
 

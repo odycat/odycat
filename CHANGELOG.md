@@ -4,6 +4,32 @@ All notable changes to OdyCAT. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-11-11
+
+### Added
+
+- Device classes for the Beckhoff EL1014 (4 DI) and EL2004 (4 DO), tested
+  on the real terminals, and ES1014 / ES2004 for their versions with
+  pluggable wiring.
+
+### Fixed
+
+- Slaves without a mailbox (simple digital I/O terminals) can exchange
+  process data: their PDOs are in SM0/SM1, and the engine assigned PDOs to
+  SM2 and SM3 only, so `odycat-config scan` left those PDOs out. A PDO's
+  sync manager is now set with `"sm"` (default 2 for `rxpdo`, 3 for
+  `txpdo`), and a direction may span several sync managers (the EL2809 has
+  a byte of outputs in SM0 and one in SM1). `odycat-config scan` writes it,
+  and the engine stops at startup when the slave has no such sync manager
+  for that direction, naming the one where the slave has the PDO.
+- The `beckhoff.EL1809` and `beckhoff.EL2809` device classes name the
+  terminals' sync managers; without them the terminals stayed in PREOP.
+- `odycat-config scan` fills a sync manager that ends inside a byte (four
+  1-bit channels) with a gap to the end of it, instead of writing a config
+  the engine refuses.
+- The engine no longer asks slaves without a mailbox for their free-run
+  setting, which printed "Failed to execute SDO upload" for each of them.
+
 ## [1.0.1] - 2026-11-10
 
 ### Fixed

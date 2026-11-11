@@ -4,7 +4,9 @@
 """
 odycat-config scan and the EtherCATInfo parser, against `ethercat` output
 recorded from the demo box (tests/data/demo_box): ECT60 drive, CATIO-A,
-EC3A-IO1632 and a Delta AX-5 coupler with a DI and a DO module.
+EC3A-IO1632 and a Delta AX-5 coupler with a DI and a DO module; and from a
+Beckhoff EK1100 with EL1014/EL2004 terminals (tests/data/beckhoff_io, the
+first four slaves), which have no mailbox and their process data in SM0.
 """
 
 import io
@@ -21,13 +23,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _support  # noqa: E402,F401  (puts the repo on sys.path)
 
 from odycat import _scan, _esi as esi              # noqa: E402
-from odycat._config import slave_entry_layout       # noqa: E402
+from odycat._config import slave_entry_layout, slave_pdo_sizes   # noqa: E402
 from odycat._profiles import expand_config, expand_slave, uses_profiles   # noqa: E402
 
 DATA = Path(__file__).resolve().parent / "data" / "demo_box"
+BECKHOFF = DATA.parent / "beckhoff_io"
 
 
-def recorded(args: list) -> str:
+def recorded(args: list, data: Path = DATA) -> str:
     """The recorded output for an `ethercat` command line."""
     if args == ["slaves"]:
         name = "slaves.txt"
@@ -41,7 +44,7 @@ def recorded(args: list) -> str:
         name = f"{args[0]}_{args[2]}.txt"
     else:
         raise AssertionError(f"unexpected command {args}")
-    path = DATA / name
+    path = data / name
     if not path.exists():
         raise RuntimeError(f"`ethercat {' '.join(args)}` failed: no such slave")
     return path.read_text(encoding="utf-8", errors="replace")
@@ -155,8 +158,13 @@ class BuildTests(unittest.TestCase):
         coupler = sl[3]
         self.assertEqual((coupler["vendor_id"], coupler["product_code"]),
                          ("0x000001dd", "0x10518000"))
-        self.assertEqual((coupler["txpdo"], coupler["rxpdo"]), ({"entries": []}, {"entries": []}))
-        self.assertTrue(any("SM0" in line for line in report))
+        # No mailbox: its one input PDO is in SM0
+        self.assertEqual(coupler["txpdo"], {"index": "0x1A00", "sm": 0, "entries": [
+            {"index": "0x6000", "subindex": 1, "bits": 1,
+             "label": "unit_power_input_low_voltage_warning"},
+            {"index": "0x0000", "subindex": 0, "bits": 7}]})
+        self.assertEqual(coupler["rxpdo"], {"entries": []})
+        self.assertFalse(any("left out" in line for line in report))
         self.assertEqual(len({s["label"] for s in sl}), 6)
 
     def test_default_writes_the_classes_out(self):
@@ -235,6 +243,80 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(json.loads(text), cfg)
         self.assertIn('{ "index": "0x6041", "subindex": 0, "type": "u16", "label": '
                       '"statusword" }', text)
+
+
+class MailboxlessTests(unittest.TestCase):
+    """Terminals without a mailbox: one 1-bit PDO per channel, in SM0."""
+
+    def config(self):
+        """Written from the bus alone, as for a slave without a class."""
+        slaves = _scan.read_bus(lambda args: recorded(args, BECKHOFF))
+        return _scan.build_config(slaves, bus="x", use_profiles=False)
+
+    def test_the_classes_match_what_the_bus_says(self):
+        cfg, _ = self.config()
+        short, report = _scan.build_config(
+            _scan.read_bus(lambda args: recorded(args, BECKHOFF)), bus="x", short=True)
+        self.assertEqual([s.get("device") for s in short["slaves"]],
+                         [None, "beckhoff.EL1014", "beckhoff.EL1014", "beckhoff.EL2004"])
+        # ES terminals report the EL identity: the scan names both
+        self.assertIn("also matches: beckhoff.ES1014", "\n".join(report))
+        for i, dev in ((1, "beckhoff.EL1014"), (3, "beckhoff.EL2004"),
+                       (1, "beckhoff.ES1014"), (3, "beckhoff.ES2004")):
+            ref = expand_slave({"device": dev, "position": 0, "label": "x"})
+            self.assertEqual(layout_key(cfg["slaves"][i]), layout_key(ref), dev)
+            self.assertEqual(slave_pdo_sizes(ref), slave_pdo_sizes(cfg["slaves"][i]))
+
+    def test_channels_in_sm0(self):
+        cfg, report = self.config()
+        coupler, di, di2, do = cfg["slaves"]
+        self.assertEqual((coupler["txpdo"], coupler["rxpdo"]),
+                         ({"entries": []}, {"entries": []}))
+        self.assertEqual([(p["index"], p["sm"]) for p in di["txpdo"]],
+                         [("0x1A00", 0), ("0x1A01", 0), ("0x1A02", 0), ("0x1A03", 0)])
+        self.assertEqual(di["rxpdo"], {"entries": []})
+        self.assertEqual([(p["index"], p["sm"]) for p in do["rxpdo"]],
+                         [("0x1600", 0), ("0x1601", 0), ("0x1602", 0), ("0x1603", 0)])
+        self.assertEqual(do["txpdo"], {"entries": []})
+        self.assertFalse(any("left out" in line for line in report))
+
+    def test_four_channels_fill_the_byte_with_a_gap(self):
+        cfg, _ = self.config()
+        di, do = cfg["slaves"][1], cfg["slaves"][3]
+        self.assertEqual(di["txpdo"][-1]["entries"][-1],
+                         {"index": "0x0000", "subindex": 0, "bits": 4})
+        self.assertEqual(do["rxpdo"][-1]["entries"][-1],
+                         {"index": "0x0000", "subindex": 0, "bits": 4})
+        inputs, outputs = slave_entry_layout(di)
+        self.assertEqual([(f["index"], f["bits"], f["bit_offset"]) for f in inputs],
+                         [("0x6000", 1, 0), ("0x6010", 1, 1), ("0x6020", 1, 2),
+                          ("0x6030", 1, 3)])
+        self.assertEqual(outputs, [])
+        _, outputs = slave_entry_layout(do)
+        self.assertEqual([(f["index"], f["bit_offset"]) for f in outputs],
+                         [("0x7000", 0), ("0x7010", 1), ("0x7020", 2), ("0x7030", 3)])
+
+    def test_format_round_trips(self):
+        cfg, _ = self.config()
+        self.assertEqual(json.loads(_scan.format_config(cfg)), cfg)
+
+    def test_a_direction_over_two_sync_managers(self):
+        """Outputs in SM0 and SM1 (as the EL2809 has them): both are kept,
+        each filled to a whole byte."""
+        slaves = _scan.read_bus(lambda args: recorded(args, BECKHOFF))
+        do = slaves[3]
+        pdos = tuple(p._replace(sm=1) if p.index >= 0x1602 else p for p in do.device.pdos)
+        slaves[3] = do._replace(device=do.device._replace(pdos=pdos))
+        cfg, report = _scan.build_config(slaves, bus="x", use_profiles=False)
+        rx = cfg["slaves"][3]["rxpdo"]
+        self.assertEqual([(p["index"], p["sm"], len(p["entries"])) for p in rx],
+                         [("0x1600", 0, 1), ("0x1601", 0, 2), ("0x1602", 1, 1),
+                          ("0x1603", 1, 2)])
+        self.assertEqual(rx[1]["entries"][-1], {"index": "0x0000", "subindex": 0, "bits": 6})
+        self.assertEqual(rx[3]["entries"][-1], {"index": "0x0000", "subindex": 0, "bits": 6})
+        _, outputs = slave_entry_layout(cfg["slaves"][3])
+        self.assertEqual([f["bit_offset"] for f in outputs], [0, 1, 8, 9])
+        self.assertFalse(any("left out" in line for line in report))
 
 
 class UpdateTests(unittest.TestCase):

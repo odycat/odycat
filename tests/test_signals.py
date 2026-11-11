@@ -18,7 +18,7 @@ from _support import fake_engine, mini_config   # noqa: E402
 from odycat import Events  # noqa: E402
 from odycat.device import ObjectNotMappedError  # noqa: E402
 from odycat.devices.amsamotion import EC3A_IO1632  # noqa: E402
-from odycat.devices.beckhoff import EL1809, EL2809  # noqa: E402
+from odycat.devices.beckhoff import EL1014, EL1809, EL2004, EL2809  # noqa: E402
 from odycat.devices.delta import AX516AM, AX516AN  # noqa: E402
 from odycat.devices.leadshine import ECT60  # noqa: E402
 from odycat.signal import Signal  # noqa: E402
@@ -66,6 +66,8 @@ class DeclarationTests(unittest.TestCase):
             AX516AN: delta + [f"set_{n}" for n in delta],
             EL1809: [f"input_{n}" for n in range(1, 17)],
             EL2809: [f"{p}output_{n}" for n in range(1, 17) for p in ("", "set_")],
+            EL1014: [f"input_{n}" for n in range(1, 5)],
+            EL2004: [f"{p}output_{n}" for n in range(1, 5) for p in ("", "set_")],
             ECT60: ["in3", "in4", "in5", "in6", "out1", "out2", "set_out1", "set_out2"],
         }
         for cls, names in expected.items():

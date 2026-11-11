@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<EtherCATInfo>
+  <!-- Slave 0 -->
+  <Vendor>
+    <Id>2</Id>
+  </Vendor>
+  <Descriptions>
+    <Devices>
+      <Device>
+        <Type ProductCode="#x044c2c52" RevisionNo="#x00120000">EK1100</Type>
+        <Name><![CDATA[EK1100 EtherCAT-Koppler (2A E-Bus)]]></Name>
+      </Device>
+    </Devices>
+  </Descriptions>
+</EtherCATInfo>

@@ -28,6 +28,7 @@ static cJSON *dump_dir(const pdo_dir_t *d) {
         const pdo_cfg_t *pdo = &d->pdos[p];
         cJSON *jp = cJSON_CreateObject();
         cJSON_AddNumberToObject(jp, "index", pdo->index);
+        cJSON_AddNumberToObject(jp, "sm", pdo->sm);
         cJSON *ents = cJSON_AddArrayToObject(jp, "entries");
         for (int e = 0; e < pdo->count; e++) {
             const pdo_entry_cfg_t *ent = &d->entries[pdo->first + e];

@@ -394,10 +394,25 @@ static bool queue_free_run(ec_master_t *master, const slave_cfg_t *s,
     return true;
 }
 
+/* True if a PDO of the direction is in SM0 or SM1, which slaves with a
+ * mailbox use for it. */
+static bool uses_mailbox_sm(const pdo_dir_t *dir) {
+    for (int p = 0; p < dir->pdo_count; p++)
+        if (dir->pdos[p].sm < 2)
+            return true;
+    return false;
+}
+
 static void configure_free_run(ec_master_t *master, const slave_cfg_t *s) {
     bool has_out = s->rx.size > 0;
     bool has_in  = s->tx.size > 0;
     if (!has_out && !has_in) return;
+    /* Process data in SM0/SM1: the slave has no mailbox, so no CoE to ask */
+    if (uses_mailbox_sm(&s->rx) || uses_mailbox_sm(&s->tx)) {
+        VPRINTF("  slave %u:%d [%s]: no mailbox, keeps its sync mode\n",
+                s->alias, s->position, s->label);
+        return;
+    }
     bool out = has_out && queue_free_run(master, s, 0x1C32);
     bool in  = has_in  && queue_free_run(master, s, 0x1C33);
     if (out || in)
@@ -424,23 +439,109 @@ ec_master_t *igh_request_master(const odycat_config_t *cfg) {
     return master;
 }
 
+/* The sync manager whose PDO list in the slave's SII holds `pdo_index`,
+ * or -1. */
+static int sii_sm_of_pdo(ec_master_t *master, uint16_t pos, uint8_t sync_count,
+                         uint16_t pdo_index) {
+    for (uint8_t sm = 0; sm < sync_count && sm < EC_MAX_SYNC_MANAGERS; sm++) {
+        ec_sync_info_t sync;
+        if (ecrt_master_get_sync_manager(master, pos, sm, &sync))
+            continue;
+        for (unsigned int p = 0; p < sync.n_pdos; p++) {
+            ec_pdo_info_t pdo;
+            if (!ecrt_master_get_pdo(master, pos, sm, (uint16_t)p, &pdo) &&
+                pdo.index == pdo_index)
+                return sm;
+        }
+    }
+    return -1;
+}
+
+/* Stop at startup when the slave on the bus has no sync manager of that
+ * number for that direction: IgH would leave the slave in PREOP. Slaves
+ * without a mailbox carry their process data in SM0/SM1. */
+static void check_sync_manager(ec_master_t *master, const slave_cfg_t *s,
+                               const ec_slave_info_t *si, const pdo_cfg_t *pdo,
+                               ec_direction_t want, const char *key) {
+    uint16_t pos = (uint16_t)s->ring_pos;
+    ec_sync_info_t sync;
+    if (pdo->sm < si->sync_count &&
+        !ecrt_master_get_sync_manager(master, pos, pdo->sm, &sync) && sync.dir == want)
+        return;
+    const char *what = want == EC_DIR_OUTPUT ? "outputs" : "inputs";
+    int found = sii_sm_of_pdo(master, pos, si->sync_count, pdo->index);
+    if (found >= 0)
+        die("slave %u:%d (%s): %s PDO 0x%04X is assigned to SM%d, but this slave has "
+            "it in SM%d (`ethercat pdos -p %d`): give it \"sm\": %d",
+            s->alias, s->position, s->label, key, pdo->index, pdo->sm,
+            found, s->ring_pos, found);
+    die("slave %u:%d (%s): %s PDO 0x%04X is assigned to SM%d, which this slave has "
+        "not for %s (`ethercat pdos -p %d` lists its sync managers; set the PDO's \"sm\")",
+        s->alias, s->position, s->label, key, pdo->index, pdo->sm, what, s->ring_pos);
+}
+
+/* Check the first PDO of each sync manager of a direction, if the slave
+ * is on the bus. */
+static void check_sync_managers(ec_master_t *master, const slave_cfg_t *s,
+                                const pdo_dir_t *dir, ec_direction_t want,
+                                const char *key) {
+    ec_slave_info_t si;
+    if (dir->pdo_count == 0 || s->ring_pos < 0 ||
+        ecrt_master_get_slave(master, (uint16_t)s->ring_pos, &si))
+        return;
+    for (int p = 0; p < dir->pdo_count; p++)
+        if (p == 0 || dir->pdos[p].sm != dir->pdos[p - 1].sm)
+            check_sync_manager(master, s, &si, &dir->pdos[p], want, key);
+}
+
+/* True if a PDO of the direction is in sync manager `sm`. */
+static bool dir_uses_sm(const pdo_dir_t *dir, uint8_t sm) {
+    for (int p = 0; p < dir->pdo_count; p++)
+        if (dir->pdos[p].sm == sm)
+            return true;
+    return false;
+}
+
+/* One sync manager entry per run of PDOs in the same sync manager (the
+ * config parser keeps each sync manager's PDOs together). A direction
+ * without PDOs clears its default sync manager's assignment, unless the
+ * other direction uses that sync manager. */
+static int add_syncs(ec_sync_info_t *syncs, int n, const pdo_dir_t *dir,
+                     const pdo_dir_t *other, ec_pdo_info_t *pdos,
+                     ec_direction_t direction, ec_watchdog_mode_t wd) {
+    if (dir->pdo_count == 0) {
+        if (!dir_uses_sm(other, dir->sm))
+            syncs[n++] = (ec_sync_info_t){dir->sm, direction, 0, NULL, EC_WD_DISABLE};
+        return n;
+    }
+    for (int p = 0; p < dir->pdo_count; p++) {
+        if (p > 0 && dir->pdos[p].sm == dir->pdos[p - 1].sm) {
+            syncs[n - 1].n_pdos++;
+            continue;
+        }
+        syncs[n++] = (ec_sync_info_t){dir->pdos[p].sm, direction, 1, &pdos[p], wd};
+    }
+    return n;
+}
+
 /* PDO assignment: clear the slave's, add every configured PDO of each
- * direction, in config order. */
-static void configure_pdos(const slave_cfg_t *s) {
+ * direction, in config order, to its sync manager. */
+static void configure_pdos(ec_master_t *master, const slave_cfg_t *s) {
     if (s->tx.pdo_count == 0 && s->rx.pdo_count == 0)
         return;
+    check_sync_managers(master, s, &s->rx, EC_DIR_OUTPUT, "rxpdo");
+    check_sync_managers(master, s, &s->tx, EC_DIR_INPUT, "txpdo");
     ec_pdo_entry_info_t tx_ent[MAX_PDO_ENTRIES], rx_ent[MAX_PDO_ENTRIES];
     ec_pdo_info_t tx_pdos[MAX_PDOS_PER_DIR], rx_pdos[MAX_PDOS_PER_DIR];
-    unsigned int n_tx_pdos = build_pdo_info(&s->tx, tx_ent, tx_pdos);
-    unsigned int n_rx_pdos = build_pdo_info(&s->rx, rx_ent, rx_pdos);
+    build_pdo_info(&s->tx, tx_ent, tx_pdos);
+    build_pdo_info(&s->rx, rx_ent, rx_pdos);
 
-    ec_sync_info_t syncs[] = {
-        {2, EC_DIR_OUTPUT, n_rx_pdos, n_rx_pdos ? rx_pdos : NULL,
-         n_rx_pdos ? EC_WD_ENABLE : EC_WD_DISABLE},
-        {3, EC_DIR_INPUT,  n_tx_pdos, n_tx_pdos ? tx_pdos : NULL,
-         EC_WD_DISABLE},
-        {0xFF, 0, 0, NULL, EC_WD_DISABLE}
-    };
+    /* Each sync manager once (the parser refuses one in both directions),
+     * plus the terminator */
+    ec_sync_info_t syncs[EC_MAX_SYNC_MANAGERS + 1];
+    int n = add_syncs(syncs, 0, &s->rx, &s->tx, rx_pdos, EC_DIR_OUTPUT, EC_WD_ENABLE);
+    n = add_syncs(syncs, n, &s->tx, &s->rx, tx_pdos, EC_DIR_INPUT, EC_WD_DISABLE);
+    syncs[n] = (ec_sync_info_t){0xFF, 0, 0, NULL, EC_WD_DISABLE};
     if (ecrt_slave_config_pdos(s->sc, EC_END, syncs))
         die("slave %d (%s): ecrt_slave_config_pdos failed", s->position, s->label);
 }
@@ -510,7 +611,7 @@ void igh_configure_slave(ec_master_t *master, ec_domain_t *domain,
         die("slave %u:%d (%s): could not create the AL status register request.",
             s->alias, s->position, s->label);
 
-    configure_pdos(s);
+    configure_pdos(master, s);
     /* Slaves without DC go free-run, so late cycles cannot trip their
      * sync error. Queued first so explicit 0x1C32/0x1C33 SDOs in the
      * config still win. */

@@ -21,6 +21,10 @@ from odycat.devices.cia402 import Servo
 | `ECT60` | `leadshine` | `leadshine.ECT60` | Leadshine ECT60 closed-loop stepper | `0x00000A88` / `0x0A880002` | tested |
 | `EL2809` | `beckhoff` | `beckhoff.EL2809` | Beckhoff EL2809, 16 DO | `0x00000002` / `0x0AF93052` | community |
 | `EL1809` | `beckhoff` | `beckhoff.EL1809` | Beckhoff EL1809, 16 DI | `0x00000002` / `0x07113052` | community |
+| `EL2004` | `beckhoff` | `beckhoff.EL2004` | Beckhoff EL2004, 4 DO | `0x00000002` / `0x07D43052` | tested |
+| `ES2004` | `beckhoff` | `beckhoff.ES2004` | Beckhoff ES2004, 4 DO (EL2004, pluggable wiring) | `0x00000002` / `0x07D43052` | tested |
+| `EL1014` | `beckhoff` | `beckhoff.EL1014` | Beckhoff EL1014, 4 DI | `0x00000002` / `0x03F63052` | tested |
+| `ES1014` | `beckhoff` | `beckhoff.ES1014` | Beckhoff ES1014, 4 DI (EL1014, pluggable wiring) | `0x00000002` / `0x03F63052` | tested |
 | `EC3A_IO1632` | `amsamotion` | `amsamotion.EC3A_IO1632` | AMSA Motion EC3A-IO1632, 16 DI + 16 DO | `0x00000B95` / `0x00001101` | tested |
 | `AX516AM` | `delta` | `delta.AX516AM` | Delta AX-516AM20-0A, 16 DI | `0x000001DD` / `0x10512081` | tested |
 | `AX516AN` | `delta` | `delta.AX516AN` | Delta AX-516AN02-0A, 16 DO | `0x000001DD` / `0x10512181` | tested |
@@ -55,6 +59,7 @@ Where the device prints only a number, the name is `input_<n>` /
 | `EC3A_IO1632` | IN00…IN15, OUT00…OUT15 | `in00`…`in15`, `out00`…`out15` |
 | `AX516AM`, `AX516AN` | L0…L7, R0…R7 (two columns) | `l0`…`l7`, `r0`…`r7` |
 | `EL1809`, `EL2809` | 1…16 | `input_1`…`input_16`, `output_1`…`output_16` |
+| `EL1014`, `EL2004`, `ES1014`, `ES2004` | 1…4 | `input_1`…`input_4`, `output_1`…`output_4` |
 | `ECT60` (I/O connector) | IN3…IN6, OUT1, OUT2 | `in3`…`in6`, `out1`, `out2` |
 
 `input(name)`, `output(name)` and `set_output(name, state)` take the printed
@@ -395,7 +400,8 @@ objects. Drive defaults: 0x6081 = 10000, 0x6083 = 0x6084 = 100000,
 Profile: the terminal's 16 one-bit PDOs as in its ESI (EL2809 RxPDOs
 `0x1600`..`0x160F` → `0x7000:01`, `0x7010:01`, ...; EL1809 TxPDOs
 `0x1A00`..`0x1A0F` → `0x6000:01`, `0x6010:01`, ...), packed into one 16-bit
-word. Channels 1..16.
+word. Channels 1..16. The terminals have no mailbox: the EL1809's inputs
+are in SM0, the EL2809's outputs in SM0 (channels 1–8) and SM1 (9–16).
 
 ```python
 out = EL2809(position=0)
@@ -404,6 +410,27 @@ out.set_outputs(0xFFFF)             # word (bit n-1 = channel n) or 16 bools
 out.output_1(); out.outputs()
 
 inp = EL1809(position=1)
+inp.input_3(); inp.input(3); inp.inputs()
+```
+
+## `EL2004` / `EL1014` (Beckhoff 4 DO / 4 DI), `ES2004` / `ES1014`
+
+Profile: the terminal's 4 one-bit PDOs in SM0 (EL2004 RxPDOs
+`0x1600`..`0x1603` → `0x7000:01`, ...; EL1014 TxPDOs `0x1A00`..`0x1A03` →
+`0x6000:01`, ...) and a 4-bit gap: one byte. Channels 1..4.
+
+The ES terminals (pluggable wiring) are the same terminals and report the
+EL identity and name, so `odycat-config scan` writes the EL class for both
+and says the ES class matches too. `ES2004` and `ES1014` are the EL classes
+under the name printed on the terminal.
+
+```python
+out = EL2004(position=3)            # or ES2004(...)
+out.set_output_1(True)              # or out.set_output(1, True)
+out.set_outputs(0x0F)               # number (bit n-1 = channel n) or 4 bools
+out.output_1(); out.outputs()
+
+inp = EL1014(position=1)            # or ES1014(...)
 inp.input_3(); inp.input(3); inp.inputs()
 ```
 
