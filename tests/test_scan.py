@@ -192,6 +192,18 @@ class BuildTests(unittest.TestCase):
         self.assertIn("support: tested", line)
         self.assertFalse(any("not the one tested" in r for r in report))
 
+    def test_report_names_the_maintainer_of_a_vendor_class(self):
+        from odycat.devices.leadshine import ECT60
+        slaves = bus()
+        slaves[0] = slaves[0]._replace(device=slaves[0].device._replace(revision=0x203))
+        with mock.patch.object(ECT60, "SUPPORT", "vendor"), \
+                mock.patch.object(ECT60, "MAINTAINER", "Acme", create=True):
+            _, report = _scan.build_config(slaves, bus="x", short=True)
+        line = next(r for r in report if "leadshine.ECT60" in r)
+        self.assertIn("support: vendor (Acme)", line)
+        self.assertIn("revision 0x00000203 is not the one tested: "
+                      "vendor (Acme; revision 0x00000202)", "\n".join(report))
+
     def test_slave_to_prepare_is_reported(self):
         slaves = bus()
         i = next(n for n, s in enumerate(slaves) if s.device.product_code == 0x10512081)

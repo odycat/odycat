@@ -59,7 +59,8 @@ the shared memory. Consequences:
    different vendor/product code is fatal.
 5. Per slave: `ecrt_master_slave_config`, PDO assignment
    (`ecrt_slave_config_pdos`, SM2 = outputs, SM3 = inputs unless the PDOs'
-   `sm` names others, checked against the slave's sync managers), queue startup
+   `sm` names others, checked against the slave's sync managers, its SII
+   PDOs and its mailbox), queue startup
    SDOs (`ecrt_slave_config_sdo8/16/32`, sent by IgH in PREOP), optional DC
    (`ecrt_slave_config_dc`), register PDO entries in one domain. Slaves
    without DC first get free-run SDOs, when `ecrt_master_sdo_upload` of

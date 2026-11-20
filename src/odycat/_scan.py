@@ -417,11 +417,12 @@ def _slave_entry(s: BusSlave, profiles: dict, positions: bool, short: bool,
         if len(classes) > 1:
             notes.append(f"also matches: {', '.join(classes[1:])}")
         from odycat._profiles import find_device
-        from odycat.devices import support, support_text
+        from odycat.devices import support, support_short, support_text
         cls = find_device(classes[0])
-        what += f"; support: {support(cls) or 'none'}"
+        what += f"; support: {support_short(cls)}"
         tested = vars(cls).get("TESTED_REVISIONS") or ()
-        if support(cls) == "tested" and dev.revision is not None and dev.revision not in tested:
+        if (support(cls) in ("tested", "vendor") and dev.revision is not None
+                and dev.revision not in tested):
             notes.append(f"revision 0x{dev.revision:08X} is not the one tested: "
                          f"{support_text(cls)}")
         if getattr(cls, "_prepare", None) and not dev.sms:

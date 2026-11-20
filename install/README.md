@@ -24,14 +24,15 @@ sudo ./install.sh --nic enp3s0    # no question
 | `--unsupported` | Run on a system not listed above |
 
 Running it again repairs or upgrades: each step skips what is already
-done. The log is in `/var/log/odycat-install.log`.
+done. The log is in `/var/log/odycat-install.log`, or in
+`/var/lib/odycat-install/install.log` when `/var/log` is in RAM (Armbian).
 
 ## What it changes
 
 | Step | Changes |
 |---|---|
 | `10-packages.sh` | Installs build tools, DKMS, the kernel headers (of the running kernel, and the headers metapackage of each kernel metapackage, so later kernels get theirs), libcjson, python3-venv |
-| `20-igh.sh` | IgH at the version and commit pinned in `versions.env`: source in `/usr/src/ethercat-<version>`; kernel modules `ec_master` and `ec_generic` through DKMS; userland (`libethercat`, `ethercat`, `ethercatctl`, `/etc/ethercat.conf`) in `/usr/local`; `/etc/systemd/system/ethercat.service`. Refuses an IgH installed by other means (see `--keep-igh`) |
+| `20-igh.sh` | IgH at the version and commit pinned in `versions.env`: source in `/usr/src/ethercat-<version>`; kernel modules `ec_master` and `ec_generic` through DKMS; userland (`libethercat`, `ethercat`, `ethercatctl`, `/etc/ethercat.conf`) in `/usr/local`; `/etc/systemd/system/ethercat.service`. Refuses an IgH installed by other means (see `--keep-igh`); an IgH that comes with the distribution's kernel (Ubuntu's HWE kernels) stays, and the DKMS modules take precedence over it |
 | `30-nic.sh` | `MASTER0_DEVICE` (the bus card's MAC address) and `DEVICE_MODULES="generic"` in `/etc/ethercat.conf`; the card left unmanaged by NetworkManager and systemd-networkd; a drop-in that sets the card up before the master starts; enables and starts `ethercat.service` |
 | `40-odycat.sh` | `/usr/local/bin/odycat` (the release binary, checked against the release's `SHA256SUMS`, or built with `--build-engine`); the `odycat` user and group, the udev rule for `/dev/EtherCAT*`, the `odycat@` service, the polkit rule, `/etc/odycat`; adds you to the `odycat` group |
 | `50-check.sh` | Checks the modules, the master and the engine; prints the next steps |

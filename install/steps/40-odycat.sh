@@ -45,7 +45,7 @@ engine_build() {
 
 engine_download() {
     local name tmp
-    name=odycat-engine-$ODYCAT_VERSION-linux-$ARCH.tar.gz
+    name=odycat-engine-$ODYCAT_VERSION-linux-$MACHINE.tar.gz
     tmp=$(mktemp -d)
     if [ "$DRY_RUN" = 1 ]; then
         info "[dry-run] download $RELEASES/$name and check it against SHA256SUMS"
@@ -53,7 +53,7 @@ engine_download() {
         fetch "$name" "$tmp"
     fi
     run tar -xzf "$tmp/$name" -C "$tmp"
-    run install -m 0755 "$tmp/odycat-engine-$ODYCAT_VERSION-linux-$ARCH/odycat" /usr/local/bin/odycat
+    run install -m 0755 "$tmp/odycat-engine-$ODYCAT_VERSION-linux-$MACHINE/odycat" /usr/local/bin/odycat
     run rm -rf "$tmp"
 }
 

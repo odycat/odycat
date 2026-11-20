@@ -14,6 +14,8 @@ help:
 	@echo "make test       unit tests (no hardware)"
 	@echo "make lint       static checks"
 	@echo "make docs       documentation site in docs/_build/html (pip install -r docs/requirements.txt)"
+	@echo "make docs-es    the same in Spanish, in docs/_build/html-es"
+	@echo "make docs-es-status  Spanish pages whose English text changed since they were translated"
 	@echo "make clean      remove build output"
 
 engine:
@@ -37,8 +39,17 @@ lint:
 docs:
 	$(PYTHON) -m sphinx -W --keep-going -b html docs docs/_build/html
 
+docs-es:
+	$(PYTHON) -m sphinx -W --keep-going -D language=es -b html docs docs/_build/html-es
+
+# docs/es/<page>.md translates docs/<page>.md; its first line records the
+# English text it was translated from. This lists the pages whose English
+# changed since, with the diff when git has both versions.
+docs-es-status:
+	$(PYTHON) ci/docs_translations.py --diff
+
 clean:
 	$(MAKE) -C engine clean
 	rm -rf build dist *.egg-info src/*.egg-info reports docs/_build docs/generated
 
-.PHONY: help engine wheel install test lint docs clean
+.PHONY: help engine wheel install test lint docs docs-es docs-es-status clean

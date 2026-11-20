@@ -193,14 +193,45 @@ class SupportTierTests(unittest.TestCase):
                     for dev in on:      # tested on devices whose classes are tested
                         self.assertEqual(support(device_classes()[dev]), "tested")
 
+    def test_vendor_classes_name_their_maintainer(self):
+        """A "vendor" class names its manufacturer and the revisions it
+        tested; no other class names a maintainer."""
+        from odycat.devices import maintainer, support
+        for name, cls in _exported_classes().items():
+            with self.subTest(device=name):
+                if support(cls) != "vendor":
+                    self.assertNotIn("MAINTAINER", vars(cls))
+                    continue
+                self.assertIsInstance(maintainer(cls), str)
+                self.assertTrue(maintainer(cls).strip())
+                self.assertIn("PROFILE", vars(cls))
+                revisions = vars(cls).get("TESTED_REVISIONS")
+                self.assertTrue(revisions)
+                self.assertTrue(all(isinstance(r, int) for r in revisions))
+
+    def test_vendor_tier_text(self):
+        from odycat.devices import maintainer, support_short, support_text
+        from odycat.devices.leadshine import ECT60
+
+        class AcmeDrive(ECT60):
+            SUPPORT = "vendor"
+            MAINTAINER = "Acme"
+            TESTED_REVISIONS = (0x10, 0x11)
+        self.assertEqual(maintainer(AcmeDrive), "Acme")
+        self.assertEqual(support_short(AcmeDrive), "vendor (Acme)")
+        self.assertEqual(support_text(AcmeDrive),
+                         "vendor (Acme; revisions 0x00000010, 0x00000011)")
+        self.assertEqual(support_short(ECT60), "tested")
+
     def test_tier_is_not_inherited(self):
-        from odycat.devices import support, support_text
+        from odycat.devices import maintainer, support, support_text
         from odycat.devices.leadshine import ECT60
 
         class MyDrive(ECT60):
             pass
         self.assertIsNone(support(MyDrive))
         self.assertEqual(support_text(MyDrive), "none")
+        self.assertIsNone(maintainer(MyDrive))
         self.assertEqual(support_text(ECT60), "tested (revision 0x00000202)")
 
     def test_devices_page_shows_each_tier(self):

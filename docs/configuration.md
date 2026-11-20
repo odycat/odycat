@@ -138,8 +138,11 @@ PDO fields:
 
 OdyCAT assigns exactly the PDOs that have entries to their sync manager (SM2
 outputs, SM3 inputs unless `sm` says otherwise), in config order, and writes
-their mapping. A sync manager the slave does not have for that direction
-stops the engine at startup, naming the one where the slave has the PDO. PDOs without
+their mapping. The engine stops at startup, before the bus starts, when a
+PDO's sync manager cannot be right: the slave has no such sync manager for
+that direction, the slave's SII (`ethercat pdos`) lists the PDO in another
+one (the message names it), or SM0/SM1 on a slave with a CoE object
+dictionary, where they are the mailbox. PDOs without
 entries are not assigned. The slave must accept that assignment and
 mapping: fixed-mapping slaves need the PDOs and entries exactly as their ESI /
 `ethercat pdos` shows; slaves with configurable mapping accept any objects

@@ -20,7 +20,7 @@
 #   --unsupported    run on a distribution or release not listed above
 #
 # Running it again repairs or upgrades: each step skips what is already done.
-# Log: /var/log/odycat-install.log
+# Log: /var/log/odycat-install.log (/var/lib/odycat-install/install.log when /var/log is in RAM)
 set -euo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -66,7 +66,7 @@ export HERE PKG_DIR SRC_DIR ODYCAT_VERSION
 
 # ---------------------------------------------------------------- platform
 . /etc/os-release
-ARCH=$(uname -m)
+MACHINE=$(uname -m)
 DISTRO=unsupported
 if [ -f /etc/armbian-release ]; then
     case "$ID:$VERSION_ID" in debian:13|ubuntu:24.04|ubuntu:26.04) DISTRO=armbian ;; esac
@@ -78,20 +78,24 @@ else
         ubuntu:24.04|ubuntu:26.04) DISTRO=ubuntu ;;
     esac
 fi
-case $ARCH in x86_64|aarch64) ;; *) DISTRO=unsupported ;; esac
+case $MACHINE in x86_64|aarch64) ;; *) DISTRO=unsupported ;; esac
 if [ "$DISTRO" = unsupported ]; then
-    [ "$UNSUPPORTED" = 1 ] || die "$PRETTY_NAME on $ARCH is not supported (Debian 13, Ubuntu 24.04/26.04 LTS, Raspberry Pi OS and Armbian based on them; x86_64, aarch64). --unsupported tries anyway."
-    warn "$PRETTY_NAME on $ARCH is not supported: continuing because of --unsupported"
+    [ "$UNSUPPORTED" = 1 ] || die "$PRETTY_NAME on $MACHINE is not supported (Debian 13, Ubuntu 24.04/26.04 LTS, Raspberry Pi OS and Armbian based on them; x86_64, aarch64). --unsupported tries anyway."
+    warn "$PRETTY_NAME on $MACHINE is not supported: continuing because of --unsupported"
     DISTRO=${ID:-unknown}
 fi
-export ARCH DISTRO
+export MACHINE DISTRO    # not ARCH: Kbuild reads ARCH (aarch64 is not a kernel arch)
 
 if [ "$DRY_RUN" = 0 ]; then
     install -d -m 0755 "$STATE_DIR"
+    # /var/log in RAM (Armbian's ramlog: zram or tmpfs) loses the log at a power cut.
+    case "$(findmnt -n -o SOURCE,FSTYPE /var/log 2>/dev/null)" in
+        /dev/zram*|*tmpfs*) LOG_FILE=$STATE_DIR/install.log ;;
+    esac
     exec > >(tee -a "$LOG_FILE") 2>&1
 fi
 say "OdyCAT $ODYCAT_VERSION installer, $(date -u '+%Y-%m-%d %H:%M UTC')"
-info "$PRETTY_NAME, $ARCH, kernel $(uname -r); IgH $IGH_VERSION"
+info "$PRETTY_NAME, $MACHINE, kernel $(uname -r); IgH $IGH_VERSION"
 [ "$DRY_RUN" = 1 ] && info "dry run: nothing is changed"
 
 for step in "$HERE"/steps/[0-9]*.sh; do

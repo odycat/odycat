@@ -17,7 +17,7 @@ ethernet_cards() {        # physical, wired: a device behind it, Ethernet type, 
 
 nic_step() {
     if [ "$KEEP_IGH" = 1 ] && [ -z "$NIC" ]; then
-        info "--keep-igh: /etc/ethercat.conf and the ethercat service left as they are"
+        info "--keep-igh: the IgH's ethercat.conf and the ethercat service left as they are"
         return 0
     fi
     local uplink current='' cards card

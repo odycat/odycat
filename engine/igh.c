@@ -457,31 +457,44 @@ static int sii_sm_of_pdo(ec_master_t *master, uint16_t pos, uint8_t sync_count,
     return -1;
 }
 
-/* Stop at startup when the slave on the bus has no sync manager of that
- * number for that direction: IgH would leave the slave in PREOP. Slaves
- * without a mailbox carry their process data in SM0/SM1. */
-static void check_sync_manager(ec_master_t *master, const slave_cfg_t *s,
-                               const ec_slave_info_t *si, const pdo_cfg_t *pdo,
-                               ec_direction_t want, const char *key) {
+/* Stop at startup when the slave on the bus cannot take a PDO in the sync
+ * manager the config names: IgH would leave the slave in PREOP, or map the
+ * PDO over a mailbox. Three checks, each certain when it stops:
+ * - the slave has a sync manager of that number for that direction;
+ * - its SII does not list the PDO in another sync manager (a PDO the SII
+ *   does not list, as configurable mappings use, is not checked);
+ * - SM0/SM1 only on a slave without a mailbox. IgH's API does not say
+ *   which slaves have one; a CoE object dictionary (SDO Info) proves it,
+ *   so a CoE slave without SDO Info passes this check (its SII PDOs are
+ *   still checked).
+ * Slaves without a mailbox carry their process data in SM0/SM1. */
+static void check_pdo_sm(ec_master_t *master, const slave_cfg_t *s,
+                         const ec_slave_info_t *si, const pdo_cfg_t *pdo,
+                         bool first_of_sm, ec_direction_t want, const char *key) {
     uint16_t pos = (uint16_t)s->ring_pos;
-    ec_sync_info_t sync;
-    if (pdo->sm < si->sync_count &&
-        !ecrt_master_get_sync_manager(master, pos, pdo->sm, &sync) && sync.dir == want)
-        return;
-    const char *what = want == EC_DIR_OUTPUT ? "outputs" : "inputs";
     int found = sii_sm_of_pdo(master, pos, si->sync_count, pdo->index);
-    if (found >= 0)
+    if (found >= 0 && found != pdo->sm)
         die("slave %u:%d (%s): %s PDO 0x%04X is assigned to SM%d, but this slave has "
             "it in SM%d (`ethercat pdos -p %d`): give it \"sm\": %d",
             s->alias, s->position, s->label, key, pdo->index, pdo->sm,
             found, s->ring_pos, found);
-    die("slave %u:%d (%s): %s PDO 0x%04X is assigned to SM%d, which this slave has "
-        "not for %s (`ethercat pdos -p %d` lists its sync managers; set the PDO's \"sm\")",
-        s->alias, s->position, s->label, key, pdo->index, pdo->sm, what, s->ring_pos);
+    if (!first_of_sm)
+        return;
+    ec_sync_info_t sync;
+    if (pdo->sm >= si->sync_count ||
+        ecrt_master_get_sync_manager(master, pos, pdo->sm, &sync) || sync.dir != want)
+        die("slave %u:%d (%s): %s PDO 0x%04X is assigned to SM%d, which this slave has "
+            "not for %s (`ethercat pdos -p %d` lists its sync managers; set the PDO's "
+            "\"sm\")", s->alias, s->position, s->label, key, pdo->index, pdo->sm,
+            want == EC_DIR_OUTPUT ? "outputs" : "inputs", s->ring_pos);
+    if (pdo->sm < 2 && si->sdo_count > 0)
+        die("slave %u:%d (%s): %s PDO 0x%04X is assigned to SM%d, but this slave has a "
+            "CoE object dictionary, so SM0 and SM1 are its mailbox; its process data "
+            "go in SM2 and up (`ethercat pdos -p %d`)",
+            s->alias, s->position, s->label, key, pdo->index, pdo->sm, s->ring_pos);
 }
 
-/* Check the first PDO of each sync manager of a direction, if the slave
- * is on the bus. */
+/* Check every PDO of a direction, if the slave is on the bus. */
 static void check_sync_managers(ec_master_t *master, const slave_cfg_t *s,
                                 const pdo_dir_t *dir, ec_direction_t want,
                                 const char *key) {
@@ -490,8 +503,8 @@ static void check_sync_managers(ec_master_t *master, const slave_cfg_t *s,
         ecrt_master_get_slave(master, (uint16_t)s->ring_pos, &si))
         return;
     for (int p = 0; p < dir->pdo_count; p++)
-        if (p == 0 || dir->pdos[p].sm != dir->pdos[p - 1].sm)
-            check_sync_manager(master, s, &si, &dir->pdos[p], want, key);
+        check_pdo_sm(master, s, &si, &dir->pdos[p],
+                     p == 0 || dir->pdos[p].sm != dir->pdos[p - 1].sm, want, key);
 }
 
 /* True if a PDO of the direction is in sync manager `sm`. */

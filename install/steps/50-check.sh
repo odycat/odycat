@@ -18,6 +18,11 @@ else
             bad "the IgH modules are not installed for the running kernel $(uname -r)"
     fi
     lsmod | grep '^ec_master ' >/dev/null && ok "ec_master loaded" || bad "ec_master is not loaded (systemctl status ethercat)"
+    if [ "$KEEP_IGH" = 0 ] && [ -r /sys/module/ec_master/version ]; then
+        loaded=$(awk '{print $1}' /sys/module/ec_master/version)
+        [ "$loaded" = "$IGH_VERSION" ] && ok "the ec_master loaded is IgH $IGH_VERSION" ||
+            bad "the ec_master loaded is IgH $loaded, not $IGH_VERSION: sudo systemctl restart ethercat"
+    fi
     if master=$(ethercat master 2>&1); then
         ok "ethercat master: $(printf '%s\n' "$master" | sed -n 's/^ *\(Phase\|Slaves\): *\(.*\)/\1 \2/p' | paste -sd, -)"
         printf '%s\n' "$master" | grep 'Link: UP' >/dev/null || info "      no link on the bus card yet (cable, or no slave powered)"

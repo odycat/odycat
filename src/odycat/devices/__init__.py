@@ -18,6 +18,9 @@ Every device class states its support tier in SUPPORT (see TIERS):
 - "tested": tested on the real device before each release. TESTED_REVISIONS
   lists the device revisions tested (classes with a PROFILE); TESTED_ON
   lists the device classes whose devices a generic class was tested on.
+- "vendor": maintained by its manufacturer, named in MAINTAINER, which tests
+  it on the real device before each release; TESTED_REVISIONS lists the
+  device revisions it tested.
 - "community": maintained by a contributor, tested by unit tests only.
 - "unmaintained": no maintainer; deprecated for one release if it breaks,
   then removed.
@@ -28,7 +31,7 @@ import importlib
 import pkgutil
 from typing import Optional
 
-TIERS = ("tested", "community", "unmaintained")
+TIERS = ("tested", "vendor", "community", "unmaintained")
 
 
 def vendors() -> dict:
@@ -57,15 +60,31 @@ def support(cls) -> Optional[str]:
     return vars(cls).get("SUPPORT")
 
 
+def maintainer(cls) -> Optional[str]:
+    """The manufacturer that maintains a "vendor" class, or None."""
+    return vars(cls).get("MAINTAINER")
+
+
+def support_short(cls) -> str:
+    """The tier with the manufacturer of a "vendor" class: "tested",
+    "vendor (Acme)", "none"..."""
+    tier = support(cls) or "none"
+    return f"vendor ({maintainer(cls)})" if tier == "vendor" else tier
+
+
 def support_text(cls) -> str:
     """The tier as the catalogue and scan show it: "tested (revision
-    0x00000202)", "community", ..."""
+    0x00000202)", "vendor (Acme; revision 0x00000010)", "community", ..."""
     tier = support(cls) or "none"
-    if tier != "tested":
+    if tier not in ("tested", "vendor"):
         return tier
+    details = [maintainer(cls)] if tier == "vendor" else []
     revisions = vars(cls).get("TESTED_REVISIONS") or ()
     if revisions:
         word = "revision" if len(revisions) == 1 else "revisions"
-        return f"tested ({word} {', '.join(f'0x{r:08X}' for r in revisions)})"
-    on = vars(cls).get("TESTED_ON") or ()
-    return f"tested (on {', '.join(on)})" if on else "tested"
+        details.append(f"{word} {', '.join(f'0x{r:08X}' for r in revisions)}")
+    else:
+        on = vars(cls).get("TESTED_ON") or ()
+        if on:
+            details.append(f"on {', '.join(on)}")
+    return f"{tier} ({'; '.join(details)})" if details else tier

@@ -31,9 +31,11 @@ from odycat.devices.cia402 import Servo
 
 **Support** is the class's tier: **tested** classes are tested on the real
 device before each release (the [device catalogue](generated/device-catalogue.md)
-lists the device revisions tested); **community** classes are maintained by a
-contributor and tested by unit tests only; **unmaintained** classes have no
-maintainer. See [Devices in CONTRIBUTING](../CONTRIBUTING.md#devices).
+lists the device revisions tested); **vendor** classes are maintained by the
+device's manufacturer, which tests them on the real device before each
+release, with the device revisions listed in the catalogue; **community**
+classes are maintained by a contributor and tested by unit tests only;
+**unmaintained** classes have no maintainer. See [Devices in CONTRIBUTING](../CONTRIBUTING.md#devices).
 "Tested" does not test your machine or your application: test them on your
 own hardware (see [intended use](intended-use.md)). `odycat-config scan` shows
 the tier of each slave's class, and says when a slave's revision is not one
@@ -574,7 +576,9 @@ Then:
    `Events` and the trace use the same names as the class. A config entry with
    `"device": "<vendor>.<Class>"` then needs nothing else.
 3. Give it a support tier: `SUPPORT = "community"` for a contributed class
-   (see [Devices in CONTRIBUTING](../CONTRIBUTING.md#devices)).
+   (see [Devices in CONTRIBUTING](../CONTRIBUTING.md#devices)). A class in
+   the `vendor` tier also names its manufacturer, `MAINTAINER = "<name>"`,
+   and lists the revisions it tested in `TESTED_REVISIONS`.
 4. Add a row to the tables at the top of this page.
 5. If the device needs a one-off change before IgH can use it (an incomplete
    SII, for example), give the class a `_prepare` classmethod that

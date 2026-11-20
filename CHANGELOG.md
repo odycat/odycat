@@ -4,6 +4,58 @@ All notable changes to OdyCAT. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## [1.2.0] - 2026-11-20
+
+### Added
+
+- A support tier for device classes maintained by the device's
+  manufacturer: `SUPPORT = "vendor"`, with the manufacturer in
+  `MAINTAINER` and the revisions it tested in `TESTED_REVISIONS`.
+  `odycat-config scan` and the device catalogue show the manufacturer.
+- Documentation in Spanish: `README.es.md`, and on the documentation site
+  the index, getting started, intended use, compatibility, troubleshooting
+  and containers pages (`docs/es/`). Other pages are shown in English.
+- Troubleshooting: a kernel update that stops with a DKMS error (Armbian).
+
+### Fixed
+
+- The installer builds the IgH kernel modules on aarch64 (Raspberry Pi,
+  Armbian boards): it exported `ARCH=aarch64`, which the kernel build
+  reads as its target architecture, and every DKMS build failed.
+- The installer stops before installing anything when the kernel headers
+  available are for a newer kernel than the one running (Armbian's headers
+  package replaces the running kernel's), or when a kernel upgrade waits
+  for a reboot. A failed module build names its log, and a run stopped
+  half-way can be run again. An IgH installed by other means is listed
+  file by file; with `--keep-igh` it must have modules for the running
+  kernel. Where `/var/log` is in RAM (Armbian) the log is
+  `/var/lib/odycat-install/install.log`.
+- The installer works with the IgH that Ubuntu's HWE kernels include
+  (kernel 7.0 ships IgH 1.6.8): it no longer takes it for an IgH installed
+  by hand; its own IgH, through DKMS, takes precedence, and the final check
+  says which IgH version is loaded. For an IgH installed by other means it
+  lists only IgH's modules, not every `ec_*` module (`ec_sys` is ACPI's).
+- The IgH modules build on Raspberry Pi OS's kernel 6.18.60: it carries
+  the `kernel_bind()` prototype of Linux 6.19, and IgH 1.6.13 picks the
+  prototype by kernel version. The installer now picks it from the
+  kernel's headers.
+- Troubleshooting: the fix for `ObjectNotMappedError` was in the wrong row
+  of the table.
+
+### Changed
+
+- The README says who OdyCAT is for, the minimum hardware and what the
+  quick-start steps do; badges for the release, Python versions, licence,
+  CI, documentation and platforms.
+- Python 3.14 is listed as supported (tested since 1.0.0).
+- The engine checks each PDO's sync manager against the slave before the
+  bus starts: it stops when the slave's SII lists the PDO in another sync
+  manager (naming it), or when SM0/SM1 are given to a slave with a CoE
+  object dictionary, where they are its mailbox. Such configs left the
+  slave in PREOP, or mapped process data over the mailbox.
+
 ## [1.1.0] - 2026-11-11
 
 ### Added

@@ -15,9 +15,31 @@ pkgs=(build-essential autoconf automake libtool pkg-config git ca-certificates c
 # the kernels that upgrades install later.
 apt_has() { apt-cache show "$1" >/dev/null 2>&1; }
 run apt-get update -qq
-apt_has "linux-headers-$KVER" && pkgs+=("linux-headers-$KVER")
+[ -d "/lib/modules/$KVER/kernel" ] ||
+    die "the running kernel $KVER is no longer installed: a kernel upgrade waits for a reboot. Reboot and run the installer again (nothing was installed)."
+keep_headers=''
+if apt_has "linux-headers-$KVER"; then
+    pkgs+=("linux-headers-$KVER")
+else
+    # No headers package for this kernel version (Armbian): its headers come
+    # from the flavour's metapackage, and a newer one replaces them. Install
+    # it only at the version of the running kernel's package.
+    image=$(dpkg -S "/boot/vmlinuz-$KVER" 2>/dev/null | sed -n 's/^\(linux-image-[^:,]*\).*/\1/p' | head -1 || true)
+    if [ -n "$image" ]; then
+        headers=linux-headers-${image#linux-image-}
+        kernel_v=$(dpkg-query -W -f='${Version}' "$image")
+        have_v=$(dpkg-query -W -f='${Status} ${Version}' "$headers" 2>/dev/null | awk '$3 == "installed" {print $4}' || true)
+        repo_v=$(apt-cache policy "$headers" 2>/dev/null | sed -n 's/^ *Candidate: //p' || true)
+        if [ "$have_v" = "$kernel_v" ]; then
+            keep_headers=$headers       # already there: not upgraded past the running kernel
+        elif [ -n "$repo_v" ] && [ "$repo_v" != "$kernel_v" ]; then
+            die "$headers is now $repo_v and the running kernel ($image) is $kernel_v: installing it would replace the headers of the running kernel. Upgrade first (apt full-upgrade), reboot into the new kernel and run the installer again (nothing was installed)."
+        fi
+    fi
+fi
 while read -r image; do
-    apt_has "linux-headers-${image#linux-image-}" && pkgs+=("linux-headers-${image#linux-image-}")
+    h=linux-headers-${image#linux-image-}
+    [ "$h" != "$keep_headers" ] && apt_has "$h" && pkgs+=("$h")
 done < <(dpkg-query -W -f='${Status} ${Package}\n' 'linux-image-*' 2>/dev/null |
          awk '$3 == "installed" && $4 !~ /^linux-image-[0-9]/ && $4 !~ /-dbg$/ {print $4}')
 

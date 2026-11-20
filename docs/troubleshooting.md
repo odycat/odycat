@@ -71,6 +71,23 @@ once, with `odycat-config prepare --position <ring position>` (see
 `AX516AM`/`AX516AN` constructors raise `RuntimeError` if the config does not
 map 2 bytes.
 
+## A kernel update stops with a DKMS error (Armbian)
+
+`apt upgrade` ends with `Error! Bad return status for module build on
+kernel: <version>` and `linux-image-... post-installation script subprocess
+returned error exit status 1`, and
+`/var/lib/dkms/ethercat/<IgH version>/build/make.log` says
+`scripts/basic/fixdep: not found`. The kernel package built the IgH modules
+before the headers package had prepared its build tools. Once apt has
+finished, finish the update:
+
+```sh
+sudo dpkg --configure -a
+dkms status          # ethercat/<IgH version>, <new kernel>: installed
+```
+
+then reboot into the new kernel.
+
 ## Python errors
 
 | Error | Cause / fix |
@@ -81,8 +98,8 @@ map 2 bytes.
 | `no permission to open /run/odycat/...` | Add the user to the shm group and log in again |
 | `KeyError: no slave with address A:P ...` | Address must match the config entry as written (alias + position), or use `label=` |
 | `KeyError: no entry '<name>' (available: ...)` | Use one of the listed labels or `"0xINDEX:SUB"` |
-| `ObjectNotMappedError: object 0xXXXX:YY is not in this slave's PDO map` (also from `Events` when watching it) |
-| `TypeError: in03 (slave '...') is the variable itself, not its value` | A device variable without `()` used as a value (`if io.in03:`). Write `io.in03()` | Add it to the config (`txpdo` for inputs, `rxpdo` for outputs) or set it as a startup SDO, restart the engine |
+| `ObjectNotMappedError: object 0xXXXX:YY is not in this slave's PDO map` (also from `Events` when watching it) | Add it to the config (`txpdo` for inputs, `rxpdo` for outputs) or set it as a startup SDO, restart the engine |
+| `TypeError: in03 (slave '...') is the variable itself, not its value` | A device variable without `()` used as a value (`if io.in03:`). Write `io.in03()` |
 | `ValueError: ... is an input; only outputs can be written` | Inputs come from the slave; they cannot be written |
 | `struct.error: unpack requires a buffer of N bytes` | A fixed-format class does not match the config mapping. Fix the config to the documented layout |
 | `RuntimeError: OdyCAT: the engine stopped in the middle of copying the inputs` | The engine made no progress for 10 cycles (at least 50 ms) while copying the inputs: it was killed or froze mid-cycle. Restart it. A busy machine or an engine without RT only makes reads wait, never fail |

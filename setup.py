@@ -37,7 +37,7 @@ DOCS = "https://docs.odycat.org/en/stable"
 def _long_description() -> str:
     """The README for the PyPI page: without the logo block (PyPI drops
     <picture>), and with its relative links made absolute: pages of docs/ to
-    the documentation site, other files to the repository."""
+    the documentation site, other files (HTML links too) to the repository."""
     with open(os.path.join(_HERE, "README.md"), encoding="utf-8") as f:
         text = f.read()
     text = re.sub(r'\A<p align="center">\s*<picture>.*?</picture>\s*</p>\s*', "# OdyCAT\n\n",
@@ -52,6 +52,7 @@ def _long_description() -> str:
         else:
             url = f"{REPO}/blob/main/{target}"
         return f"]({url}{anchor})"
+    text = re.sub(r'href="(?![a-z]+:|#)([^"]+)"', lambda m: f'href="{REPO}/blob/main/{m.group(1)}"', text)
     return re.sub(r"\]\((?![a-z]+:)([^)#\s]+)(#[^)\s]*)?\)", absolute, text)
 
 
@@ -85,6 +86,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Scientific/Engineering",
         "Topic :: System :: Hardware :: Hardware Drivers",
     ],

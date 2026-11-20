@@ -70,12 +70,12 @@ Small, focused contributions are easier for us to review:
 OdyCAT is only as useful as the devices it drives, so every device class
 says how it is maintained and tested. The initial catalogue reflects the
 devices on the maintainers' test bench; a class's tier describes how the
-class is maintained and tested, not its manufacturer's involvement. The
-device catalogue shows the tier:
+class is maintained and tested. The device catalogue shows the tier:
 
 | Tier | Maintained by | Tested |
 |---|---|---|
 | **tested** | The maintainers | On the real device, before each release, with the device revisions listed in the catalogue |
+| **vendor** | The device's manufacturer, named in the catalogue | On the real device by the manufacturer, before each release, with the device revisions listed in the catalogue |
 | **community** | A contributor | With unit tests at each release; not on the real device by the maintainers |
 | **unmaintained** | Nobody | With unit tests at each release. If it breaks, it is deprecated for one release, then removed |
 
@@ -86,6 +86,14 @@ expected in our tests, on the revisions listed.
 
 For device-class development or bench testing by Yoctovision S.L.U., write to
 <devices@odycat.org>.
+
+### Vendor device classes
+
+A device manufacturer can maintain the classes of its devices in the
+**vendor** tier, under an agreement with Yoctovision S.L.U.: it tests them
+on its devices before each release and answers the issues about them.
+Write to <devices@odycat.org>. A vendor class whose manufacturer does not
+confirm a release is published in that release in the community tier.
 
 ### Community device classes
 

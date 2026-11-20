@@ -1,24 +1,60 @@
 # Getting started
 
-## Quick install
+## Quick start
 
 On Debian 13, Ubuntu 24.04 or 26.04 LTS, Raspberry Pi OS or Armbian (x86-64
-or aarch64), the installer sets up the IgH master and the engine. Download
-`odycat-install-X.Y.Z.tar.gz` and `SHA256SUMS` from the release, then:
+or aarch64), with the EtherCAT slaves on a network card of their own, from
+nothing to a running bus:
+
+```sh
+sudo apt install git
+git clone https://github.com/odycat/odycat
+sudo odycat/install/install.sh          # asks which network card is the bus
+# log out and in again: the installer added you to the odycat group
+
+mkdir odycat_test && cd odycat_test
+python3 -m venv .venv
+source .venv/bin/activate
+pip install odycat
+odycat-config scan -o busconfig.json    # a config from the connected slaves
+sudo odycat busconfig.json              # the engine: leave it running
+
+# in another terminal, in odycat_test:
+.venv/bin/python -c "from odycat import Bus; b = Bus(); print('OP' if b.is_op else 'not OP', b.work_counter, '/', b.expected_wkc)"
+```
+
+Step by step:
+
+1. **The installer** asks which network card is the bus, builds the IgH
+   kernel modules with DKMS (a kernel upgrade rebuilds them), installs the
+   engine and the permissions, and checks that the master runs. Its options
+   (`--help`) and what it changes are in
+   [install/README.md](../install/README.md).
+2. **Log out and in again.** The installer adds you to the `odycat` group,
+   which gives access to the master (`/dev/EtherCAT0`) and to the engine's
+   shared memory. A session that was open before does not have it yet, and
+   the scan fails with "Permission denied". Over ssh, connect again.
+3. **The Python package** goes into a virtual environment of your project.
+   It must be the same version as the engine; `pip install odycat` gets the
+   latest release, which is what the repository's `main` installs. For an
+   older release, `pip install odycat==X.Y.Z`.
+4. **`odycat-config scan`** writes a config from the slaves it finds, with
+   labels you can rename ([3. Write a config](#3-write-a-config)).
+5. **The engine** starts the bus and prints what needs attention
+   ([4. Start the engine](#4-start-the-engine)). Stop it with Ctrl-C.
+6. **The check** attaches to the running engine: `OP` and a working counter
+   equal to the expected one mean every slave exchanges process data. Then
+   continue at [5. First script](#5-first-script).
+
+For production machines, install from the release files instead of the
+repository: download `odycat-install-X.Y.Z.tar.gz` and `SHA256SUMS` from the
+release, then:
 
 ```sh
 sha256sum -c --ignore-missing SHA256SUMS
 tar -xzf odycat-install-X.Y.Z.tar.gz
 sudo odycat-install-X.Y.Z/install.sh
 ```
-
-It asks which network card is the bus, builds the IgH kernel modules with
-DKMS (a kernel upgrade rebuilds them), installs the engine and the
-permissions, checks that the master runs, and ends by printing the command
-that installs the Python package of the same release in a virtual
-environment. Its options (`--help`) and what it changes are in
-[install/README.md](../install/README.md). Then continue at
-[3. Write a config](#3-write-a-config).
 
 The rest of this page is the manual way, and explains what the installer
 does.
